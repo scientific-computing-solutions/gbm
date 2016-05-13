@@ -53,6 +53,7 @@ public:
     					const CDataset& data,
     					vector<unsigned long>& aiNodeAssign);
     inline void Reset(){ cTerminalNodes = 1; }
+    void SetRoot(CNode& rootNode) { variableSplitters[0].Set(rootNode);}
 
 private:
 	//---------------------
@@ -74,3 +75,4 @@ private:
 };
 
 #endif // NODESEARCH_H
+

@@ -4,9 +4,9 @@
 // Includes
 //-----------------------------------
 #include "node.h"
-#include "terminalStrategy.h"
-#include "continuousStrategy.h"
-#include "categoricalStrategy.h"
+//#include "terminalStrategy.h"
+//#include "continuousStrategy.h"
+//#include "categoricalStrategy.h"
 
 //----------------------------------------
 // Function Members - Public
@@ -30,23 +30,23 @@ CNode::CNode(double nodePrediction,
 	// Set up split type and strategy
 	splitType = none;
 	splitAssigned = false;
-	nodeStrategy = new TerminalStrategy(this);
+	//nodeStrategy = new TerminalStrategy(this);
 
 }
 
 void CNode::SetStrategy()
 {
-	delete nodeStrategy;
+	//delete nodeStrategy;
 	switch(splitType)
 	{
 	case none:
-		nodeStrategy = new TerminalStrategy(this);
+		//nodeStrategy = new TerminalStrategy(this);
 		break;
 	case continuous:
-		nodeStrategy = new ContinuousStrategy(this);
+		//nodeStrategy = new ContinuousStrategy(this);
 		break;
 	case categorical:
-		nodeStrategy = new CategoricalStrategy(this);
+		//nodeStrategy = new CategoricalStrategy(this);
 		break;
 	default:
 		throw GBM::failure("Node State not recognised.");
@@ -61,7 +61,7 @@ CNode::~CNode()
     delete pLeftNode;
     delete pRightNode;
     delete pMissingNode;
-    delete nodeStrategy;
+    //delete nodeStrategy;
 }
 
 void CNode::Adjust
@@ -69,7 +69,58 @@ void CNode::Adjust
     unsigned long cMinObsInNode
 )
 {
-	nodeStrategy->Adjust(cMinObsInNode);
+	switch(splitType)
+	{
+	case none:
+		return;
+		break;
+	case continuous:
+		pLeftNode->Adjust(cMinObsInNode);
+		pRightNode->Adjust(cMinObsInNode);
+
+		if((pMissingNode->splitType == none) && (pMissingNode->cN < cMinObsInNode))
+		{
+			dPrediction = ((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
+				 (pRightNode->dTrainW)*(pRightNode->dPrediction))/
+			(pLeftNode->dTrainW + pRightNode->dTrainW);
+			pMissingNode->dPrediction = dPrediction;
+		}
+		else
+		{
+			pMissingNode->Adjust(cMinObsInNode);
+			dPrediction =
+			((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
+			(pRightNode->dTrainW)*  (pRightNode->dPrediction) +
+			(pMissingNode->dTrainW)*(pMissingNode->dPrediction))/
+			(pLeftNode->dTrainW + pRightNode->dTrainW + pMissingNode->dTrainW);
+		}
+		break;
+	case categorical:
+		pLeftNode->Adjust(cMinObsInNode);
+		pRightNode->Adjust(cMinObsInNode);
+
+		if((pMissingNode->splitType == none) && (pMissingNode->cN < cMinObsInNode))
+		{
+			dPrediction = ((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
+				 (pRightNode->dTrainW)*(pRightNode->dPrediction))/
+			(pLeftNode->dTrainW + pRightNode->dTrainW);
+			pMissingNode->dPrediction = dPrediction;
+		}
+		else
+		{
+			pMissingNode->Adjust(cMinObsInNode);
+			dPrediction =
+			((pLeftNode->dTrainW)*(pLeftNode->dPrediction) +
+			(pRightNode->dTrainW)*  (pRightNode->dPrediction) +
+			(pMissingNode->dTrainW)*(pMissingNode->dPrediction))/
+			(pLeftNode->dTrainW + pRightNode->dTrainW + pMissingNode->dTrainW);
+		}
+		break;
+	default:
+			throw GBM::failure("Node State not recognised.");
+			break;
+	}
+	//nodeStrategy->Adjust(cMinObsInNode);
 }
 
 void CNode::Predict
@@ -79,7 +130,47 @@ void CNode::Predict
     double &dFadj
 )
 {
-	nodeStrategy->Predict(data, iRow, dFadj);
+	signed char schWhichNode;
+	switch(splitType)
+	{
+	case none:
+		dFadj = dPrediction;
+		break;
+	case continuous:
+		schWhichNode = WhichNode(data,iRow);
+		if(schWhichNode == -1)
+		{
+		  pLeftNode->Predict(data, iRow, dFadj);
+		}
+		else if(schWhichNode == 1)
+		{
+		  pRightNode->Predict(data, iRow, dFadj);
+		}
+		else
+		{
+		  pMissingNode->Predict(data, iRow, dFadj);
+		}
+		break;
+	case categorical:
+		schWhichNode = WhichNode(data,iRow);
+		if(schWhichNode == -1)
+		{
+		  pLeftNode->Predict(data, iRow, dFadj);
+		}
+		else if(schWhichNode == 1)
+		{
+		  pRightNode->Predict(data, iRow, dFadj);
+		}
+		else
+		{
+		  pMissingNode->Predict(data, iRow, dFadj);
+		}
+		break;
+	default:
+			throw GBM::failure("Node State not recognised.");
+			break;
+	}
+	//nodeStrategy->Predict(data, iRow, dFadj);
 }
 
 
@@ -88,7 +179,26 @@ void CNode::GetVarRelativeInfluence
     double *adRelInf
 )
 {
-	nodeStrategy->GetVarRelativeInfluence(adRelInf);
+	switch(splitType)
+	{
+	case none:
+		return;
+		break;
+	case continuous:
+		adRelInf[iSplitVar] += dImprovement;
+		pLeftNode->GetVarRelativeInfluence(adRelInf);
+		pRightNode->GetVarRelativeInfluence(adRelInf);
+		break;
+	case categorical:
+		adRelInf[iSplitVar] += dImprovement;
+		pLeftNode->GetVarRelativeInfluence(adRelInf);
+		pRightNode->GetVarRelativeInfluence(adRelInf);
+		break;
+	default:
+			throw GBM::failure("Node State not recognised.");
+			break;
+	}
+	//nodeStrategy->GetVarRelativeInfluence(adRelInf);
 }
 
 void CNode::PrintSubtree
@@ -96,7 +206,86 @@ void CNode::PrintSubtree
  unsigned long cIndent
 )
 {
-  nodeStrategy->PrintSubTree(cIndent);
+	const std::size_t cLeftCategory = aiLeftCategory.size();
+	switch(splitType)
+	{
+	case none:
+		for(long i=0; i< cIndent; i++) Rprintf("  ");
+				  Rprintf("N=%f, Prediction=%f *\n",
+					 dTrainW,
+					 dPrediction);
+		break;
+	case continuous:
+
+		for(long i=0; i< cIndent; i++) Rprintf("  ");
+		Rprintf("N=%f, Improvement=%f, Prediction=%f, NA pred=%f\n",
+		  dTrainW,
+		 dImprovement,
+		  dPrediction,
+		  (pMissingNode == NULL ? 0.0 : pMissingNode->dPrediction));
+
+		for(long i=0; i< cIndent; i++) Rprintf("  ");
+		Rprintf("V%d in ", iSplitVar);
+		for(long i=0; i<cLeftCategory; i++)
+		  {
+			Rprintf("%d", aiLeftCategory[i]);
+			if(i<cLeftCategory-1) Rprintf(",");
+		  }
+		Rprintf("\n");
+		pLeftNode->PrintSubtree((cIndent+1));
+
+		for(long i=0; i< cIndent; i++) Rprintf("  ");
+		Rprintf("V%d not in ", iSplitVar);
+		for(long i=0; i<cLeftCategory; i++)
+		  {
+			Rprintf("%d", aiLeftCategory[i]);
+			if(i<cLeftCategory-1) Rprintf(",");
+		  }
+		Rprintf("\n");
+		pRightNode->PrintSubtree(cIndent+1);
+
+		for(long i=0; i< cIndent; i++) Rprintf("  ");
+		Rprintf("missing\n");
+		pMissingNode->PrintSubtree(cIndent+1);
+		break;
+	case categorical:
+
+		for(long i=0; i< cIndent; i++) Rprintf("  ");
+		Rprintf("N=%f, Improvement=%f, Prediction=%f, NA pred=%f\n",
+		  dTrainW,
+		  dImprovement,
+		  dPrediction,
+		  (pMissingNode == NULL ? 0.0 : pMissingNode->dPrediction));
+
+		for(long i=0; i< cIndent; i++) Rprintf("  ");
+		Rprintf("V%d in ",iSplitVar);
+		for(long i=0; i<cLeftCategory; i++)
+		  {
+			Rprintf("%d", aiLeftCategory[i]);
+			if(i<cLeftCategory-1) Rprintf(",");
+		  }
+		Rprintf("\n");
+		pLeftNode->PrintSubtree((cIndent+1));
+
+		for(long i=0; i< cIndent; i++) Rprintf("  ");
+		Rprintf("V%d not in ", iSplitVar);
+		for(long i=0; i<cLeftCategory; i++)
+		  {
+			Rprintf("%d", aiLeftCategory[i]);
+			if(i<cLeftCategory-1) Rprintf(",");
+		  }
+		Rprintf("\n");
+		pRightNode->PrintSubtree(cIndent+1);
+
+		for(long i=0; i< cIndent; i++) Rprintf("  ");
+		Rprintf("missing\n");
+		pMissingNode->PrintSubtree(cIndent+1);
+		break;
+	default:
+			throw GBM::failure("Node State not recognised.");
+			break;
+	}
+  //nodeStrategy->PrintSubTree(cIndent);
 }
 
 void CNode::SplitAssign()
@@ -104,34 +293,54 @@ void CNode::SplitAssign()
 	splitAssigned = true;
 }
 
-void CNode::SplitNode()
+void CNode::SplitNode
+(
+		unsigned long iBestSplitVar,
+		long BestVarClass,
+		double dBestSplitValue,
+		double dBestLeftSumZ,
+		double dBestLeftTotalW,
+		unsigned long cBestLeftN,
+
+		double dBestRightSumZ,
+		double dBestRightTotalW,
+		unsigned long cBestRightN,
+
+		double dBestMissingSumZ,
+		double dBestMissingTotalW,
+		unsigned long cBestMissingN,
+
+		double dBestImprovement,
+		std::vector<unsigned long>& aiBestCategory
+)
 {
+
 	// set up a continuous split
-	if(childrenParams.SplitClass==0)
+	if(BestVarClass==0)
 	{
 		splitType = continuous;
-		SetStrategy();
+		//SetStrategy();
 	}
 	else
 	{
 		splitType = categorical;
-		SetStrategy();
-		aiLeftCategory.resize(1 + (ULONG)childrenParams.SplitValue);
-					  std::copy(childrenParams.aiBestCategory.begin(),
-								childrenParams.aiBestCategory.begin() + aiLeftCategory.size(),
+		//SetStrategy();
+		aiLeftCategory.resize(1 + (ULONG)dBestSplitValue);
+					  std::copy(aiBestCategory.begin(),
+								aiBestCategory.begin() + aiLeftCategory.size(),
 								 aiLeftCategory.begin());
 	}
 
-	iSplitVar = childrenParams.SplitVar;
-	dSplitValue = childrenParams.SplitValue;
-	dImprovement = childrenParams.ImprovedResiduals;
+	iSplitVar = iBestSplitVar;
+	dSplitValue = dBestSplitValue;
+	dImprovement = dBestImprovement;
 
-	pLeftNode    = new CNode(childrenParams.LeftWeightResiduals/childrenParams.LeftTotalWeight, childrenParams.LeftTotalWeight,
-									childrenParams.LeftNumObs);
-	pRightNode   = new CNode(childrenParams.RightWeightResiduals/childrenParams.RightTotalWeight,
-							childrenParams.RightTotalWeight, childrenParams.RightNumObs);
-	pMissingNode = new CNode(childrenParams.MissingWeightResiduals/childrenParams.MissingTotalWeight,
-							childrenParams.MissingTotalWeight, childrenParams.MissingNumObs);
+	pLeftNode    = new CNode(dBestLeftSumZ/dBestLeftTotalW, dBestLeftTotalW,
+									cBestLeftN);
+	pRightNode   = new CNode(dBestRightSumZ/dBestRightTotalW, dBestRightTotalW,
+							cBestRightN);
+	pMissingNode = new CNode(dBestMissingSumZ/dBestMissingTotalW, dBestMissingTotalW,
+							cBestMissingN);
 
 }
 
@@ -141,7 +350,65 @@ signed char CNode::WhichNode
     unsigned long iObs
 )
 {
-	return nodeStrategy->WhichNode(data, iObs);
+	signed char ReturnValue = 0;
+	double dX = data.x_value(iObs, iSplitVar);
+	switch(splitType)
+	{
+	case none:
+		 if(!ISNA(dX))
+			{
+				if(dX < dSplitValue)
+				{
+					ReturnValue = -1;
+				}
+				else
+				{
+					ReturnValue = 1;
+				}
+			}
+			// if missing value returns 0
+
+
+		break;
+	case continuous:
+		 if(!ISNA(dX))
+			{
+				if(dX < dSplitValue)
+				{
+					ReturnValue = -1;
+				}
+				else
+				{
+					ReturnValue = 1;
+				}
+			}
+			// if missing value returns 0
+
+			return ReturnValue;
+		break;
+	case categorical:
+		if(!ISNA(dX))
+		{
+		  if(std::find(aiLeftCategory.begin(),
+			   aiLeftCategory.end(),
+			   (ULONG)dX) != aiLeftCategory.end())
+			{
+				ReturnValue = -1;
+			}
+			else
+			{
+				ReturnValue = 1;
+			}
+		}
+		// if missing value returns 0
+		break;
+	default:
+			throw GBM::failure("Node State not recognised.");
+			break;
+	}
+
+	return ReturnValue;
+	//return nodeStrategy->WhichNode(data, iObs);
 }
 
 
@@ -162,7 +429,153 @@ void CNode::TransferTreeToRList
     double dShrinkage
 )
 {
-	nodeStrategy->TransferTreeToRList(iNodeID,
+	switch(splitType)
+	{
+	case none:
+	{
+		int iThisNodeID = iNodeID;
+		aiSplitVar[iNodeID] = -1;
+		adSplitPoint[iNodeID] = dShrinkage*dPrediction;
+		aiLeftNode[iNodeID] = -1;
+		aiRightNode[iNodeID] = -1;
+		aiMissingNode[iNodeID] = -1;
+		adErrorReduction[iNodeID] = 0.0;
+		adWeight[iNodeID] = dTrainW;
+		adPred[iNodeID] = dShrinkage*dPrediction;
+
+		iNodeID++;
+		break;
+	}
+	case continuous:
+	{
+		int iThisNodeID = iNodeID;
+		aiSplitVar[iThisNodeID] = iSplitVar;
+		adSplitPoint[iThisNodeID] = dSplitValue;
+		adErrorReduction[iThisNodeID] = dImprovement;
+		adWeight[iThisNodeID] = dTrainW;
+		adPred[iThisNodeID] = dShrinkage*dPrediction;
+
+		iNodeID++;
+		aiLeftNode[iThisNodeID] = iNodeID;
+		pLeftNode->TransferTreeToRList(iNodeID,
+					 data,
+					 aiSplitVar,
+					 adSplitPoint,
+					 aiLeftNode,
+					 aiRightNode,
+					 aiMissingNode,
+					 adErrorReduction,
+					 adWeight,
+					 adPred,
+					 vecSplitCodes,
+					 cCatSplitsOld,
+					 dShrinkage);
+
+		aiRightNode[iThisNodeID] = iNodeID;
+		pRightNode->TransferTreeToRList(iNodeID,
+					  data,
+					  aiSplitVar,
+					  adSplitPoint,
+					  aiLeftNode,
+					  aiRightNode,
+					  aiMissingNode,
+					  adErrorReduction,
+					  adWeight,
+					  adPred,
+					  vecSplitCodes,
+					  cCatSplitsOld,
+					  dShrinkage);
+		aiMissingNode[iThisNodeID] = iNodeID;
+		pMissingNode->TransferTreeToRList(iNodeID,
+						data,
+						aiSplitVar,
+						adSplitPoint,
+						aiLeftNode,
+						aiRightNode,
+						aiMissingNode,
+						adErrorReduction,
+						adWeight,
+						adPred,
+						vecSplitCodes,
+						cCatSplitsOld,
+						dShrinkage);
+		break;
+	}
+	case categorical:
+	{
+		int iThisNodeID = iNodeID;
+		unsigned long cCatSplits = vecSplitCodes.size();
+		unsigned long i = 0;
+		int cLevels = data.varclass(iSplitVar);
+		const std::size_t cLeftCategory = aiLeftCategory.size();
+
+		aiSplitVar[iThisNodeID] = iSplitVar;
+		adSplitPoint[iThisNodeID] = cCatSplits+cCatSplitsOld; // 0 based
+		adErrorReduction[iThisNodeID] = dImprovement;
+		adWeight[iThisNodeID] = dTrainW;
+		adPred[iThisNodeID] = dShrinkage*dPrediction;
+
+		vecSplitCodes.push_back(VEC_CATEGORIES());
+
+		vecSplitCodes[cCatSplits].resize(cLevels,1);
+		for(i=0; i<cLeftCategory; i++)
+		  {
+			vecSplitCodes[cCatSplits][aiLeftCategory[i]] = -1;
+		  }
+
+		iNodeID++;
+		aiLeftNode[iThisNodeID] = iNodeID;
+		pLeftNode->TransferTreeToRList(iNodeID,
+					 data,
+					 aiSplitVar,
+					 adSplitPoint,
+					 aiLeftNode,
+					 aiRightNode,
+					 aiMissingNode,
+					 adErrorReduction,
+					 adWeight,
+					 adPred,
+					 vecSplitCodes,
+					 cCatSplitsOld,
+					 dShrinkage);
+		aiRightNode[iThisNodeID] = iNodeID;
+		pRightNode->TransferTreeToRList(iNodeID,
+					  data,
+					  aiSplitVar,
+					  adSplitPoint,
+					  aiLeftNode,
+					  aiRightNode,
+					  aiMissingNode,
+					  adErrorReduction,
+					  adWeight,
+					  adPred,
+					  vecSplitCodes,
+					  cCatSplitsOld,
+					  dShrinkage);
+
+		aiMissingNode[iThisNodeID] = iNodeID;
+		pMissingNode->TransferTreeToRList(iNodeID,
+						data,
+						aiSplitVar,
+						adSplitPoint,
+						aiLeftNode,
+						aiRightNode,
+						aiMissingNode,
+						adErrorReduction,
+						adWeight,
+						adPred,
+						vecSplitCodes,
+						cCatSplitsOld,
+						dShrinkage);
+		break;
+	}
+	default:
+	{
+		throw GBM::failure("Node State not recognised.");
+		break;
+	}
+	}
+	/*nodeStrategy->TransferTreeToRList(iNodeID,
 										data,
 									aiSplitVar,
 									adSplitPoint,
@@ -174,7 +587,7 @@ void CNode::TransferTreeToRList
 									adPred,
 									vecSplitCodes,
 									cCatSplitsOld,
-									dShrinkage);
+									dShrinkage);*/
 }
 
 

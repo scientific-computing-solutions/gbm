@@ -62,9 +62,28 @@ public:
 
     void GetVarRelativeInfluence(double *adRelInf);
     void SplitAssign();
-    void SplitNode();
+    void SplitNode
+    		(
+    				unsigned long iBestSplitVar,
+    				long BestVarClass,
+    				double dBestSplitValue,
+    				double dBestLeftSumZ,
+    				double dBestLeftTotalW,
+    				unsigned long cBestLeftN,
+
+    				double dBestRightSumZ,
+    				double dBestRightTotalW,
+    				unsigned long cBestRightN,
+
+    				double dBestMissingSumZ,
+    				double dBestMissingTotalW,
+    				unsigned long cBestMissingN,
+
+    				double dBestImprovement,
+    				std::vector<unsigned long>& aiBestCategory
+    		);
     void PrintSubtree(unsigned long cIndent);
-    double SplitImprovement(){ return childrenParams.ImprovedResiduals;}
+    //double SplitImprovement(){ return childrenParams.ImprovedResiduals;}
     void TransferTreeToRList(int &iNodeID,
 				     const CDataset &data,
 				     int *aiSplitVar,
@@ -90,7 +109,7 @@ public:
 	CNode* pMissingNode;
 
 	// Parameters
-	NodeParams childrenParams;
+	//NodeParams childrenParams;
 
 	//TODO: Currently most useful in printing out tree
 	// This nodes parameters
@@ -119,7 +138,7 @@ private:
 	//---------------------
 	// Private Variables
 	//---------------------
-    GenericNodeStrategy* nodeStrategy;
+    //GenericNodeStrategy* nodeStrategy;
 
 };
 
