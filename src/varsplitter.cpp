@@ -76,7 +76,6 @@ void VarSplitter::IncorporateObs
 								(proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
 			{
 				bestSplit = proposedSplit;
-				//std::cout << "Current Best Var: " << iBestSplitVar << " " << "best split var: " << bestSplit.SplitVar << endl;
 			}
 		}
 
@@ -87,9 +86,10 @@ void VarSplitter::IncorporateObs
 	}
 	else // variable is categorical, evaluates later
 	{
-		adGroupSumZ[(unsigned long)dX] += dWZ;
+		proposedSplit.IncrementCategories((unsigned long) dX, dW*dZ, dW);
+		/*adGroupSumZ[(unsigned long)dX] += dWZ;
 		adGroupW[(unsigned long)dX] += dW;
-		acGroupN[(unsigned long)dX] ++;
+		acGroupN[(unsigned long)dX] ++;*/
 	}
 	/*if(fIsSplit) return;
 	if(ISNA(dX))
@@ -140,7 +140,7 @@ void VarSplitter::EvaluateCategoricalSplit()
 	 long i=0;
 	  unsigned long cFiniteMeans = 0;
 
-	  //if(fIsSplit) return;
+/*	  //if(fIsSplit) return;
 
 	  if(cCurrentVarClasses == 0)
 	    {
@@ -162,7 +162,8 @@ void VarSplitter::EvaluateCategoricalSplit()
 	        }
 	    }
 
-	  rsort_with_index(&adGroupMean[0],&aiCurrentCategory[0],cCurrentVarClasses);
+	  rsort_with_index(&adGroupMean[0],&aiCurrentCategory[0],cCurrentVarClasses);*/
+	  cFiniteMeans = proposedSplit.SetAndReturnNumGroupMeans();
 
 	  // if only one group has a finite mean it will not consider
 	  // might be all are missing so no categories enter here
@@ -171,8 +172,10 @@ void VarSplitter::EvaluateCategoricalSplit()
 	   
 
 	      proposedSplit.SplitValue = (double) i;
-	      proposedSplit.UpdateLeftNode(adGroupSumZ[aiCurrentCategory[i]], adGroupW[aiCurrentCategory[i]],
-	    		  	  	  	  	  	   acGroupN[aiCurrentCategory[i]]);
+	      proposedSplit.UpdateLeftNodeWithCat(i);
+	      proposedSplit.setBestCategory();
+	      /*proposedSplit.UpdateLeftNode(adGroupSumZ[aiCurrentCategory[i]], adGroupW[aiCurrentCategory[i]],
+	    		  	  	  	  	  	   acGroupN[aiCurrentCategory[i]]);*/
 	      proposedSplit.NodeGradResiduals();
 
 		  if(proposedSplit.HasMinNumOfObs(cMinObsInNode)
@@ -228,9 +231,6 @@ void VarSplitter::Set(CNode& nodeToSplit)
 	cInitN = nodeToSplit.cN;
 
 	bestSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN);
-	proposedSplit.ResetSplitProperties(0, dInitTotalW, cInitN);
-
-
 	/*
 	InitWeightResiduals = nodeToSplit.dPrediction * nodeToSplit.dTrainW;
 	InitTotalWeight = nodeToSplit.dTrainW;

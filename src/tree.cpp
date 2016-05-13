@@ -83,8 +83,7 @@ void CCARTTree::grow
   dError = dSumZ2-dSumZ*dSumZ/dTotalW;
   pRootNode = new CNode(dSumZ/dTotalW, dTotalW, data.GetTotalInBag());
   vecpTermNodes[0] = pRootNode;
-  //aNodeSearch.SetRoot(*vecpTermNodes[0]);
-  long BestNode = 0;
+
 
   // build the tree structure
 #ifdef NOISY_DEBUG
@@ -99,8 +98,7 @@ void CCARTTree::grow
       
     // Generate all splits
     aNodeSearch.GenerateAllSplits(vecpTermNodes, data, &(adZ[0]), aiNodeAssign);
-    double bestImprov = aNodeSearch.CalcImprovement(BestNode, vecpTermNodes);
-
+    double bestImprov = aNodeSearch.CalcImprovementAndSplit(vecpTermNodes, data, aiNodeAssign);
 
     // Make the best split if possible
 	if(bestImprov == 0.0)
@@ -108,7 +106,7 @@ void CCARTTree::grow
 	  break;
 	}
 	// setup the new nodes and add them to the tree
-	aNodeSearch.Split(BestNode ,vecpTermNodes, data, aiNodeAssign);
+
 	cTotalNodeCount += 3;
 
   } // end tree growing
