@@ -14,13 +14,12 @@
 //---------------------
 // Public Functions
 //---------------------
-VarSplitter::VarSplitter(unsigned long minNumObs)//:bestSplit(), proposedSplit()
+VarSplitter::VarSplitter(unsigned long minNumObs):bestSplit(), proposedSplit()
 {
 
 	iBestSplitVar = 0;
 
 	dBestSplitValue = 0.0;
-	//fIsSplit = false;
 
 	dBestMissingTotalW = 0.0;
 	dCurrentMissingTotalW = 0.0;
@@ -64,6 +63,7 @@ void VarSplitter::IncorporateObs
 
 	if(ISNA(dX))
 	{
+		proposedSplit.UpdateMissingNode(dWZ, dW);
 		dCurrentMissingSumZ += dWZ;
 		dCurrentMissingTotalW += dW;
 		cCurrentMissingN++;
@@ -80,6 +80,7 @@ void VarSplitter::IncorporateObs
 
 		// Evaluate the current split
 		// the newest observation is still in the right child
+		proposedSplit.SplitValue = 0.5*(dLastXValue + dX);
 		dCurrentSplitValue = 0.5*(dLastXValue + dX);
 		if((dLastXValue != dX) &&
 			(cCurrentLeftN >= cMinObsInNode) &&
@@ -93,6 +94,7 @@ void VarSplitter::IncorporateObs
 									dCurrentMissingTotalW,
 									dCurrentLeftSumZ,dCurrentRightSumZ,
 									dCurrentMissingSumZ);
+			proposedSplit.NodeGradResiduals();
 			if(dCurrentImprovement > dBestImprovement)
 			{
 				iBestSplitVar = iCurrentSplitVar;
@@ -106,11 +108,14 @@ void VarSplitter::IncorporateObs
 				dBestRightTotalW = dCurrentRightTotalW;
 				cBestRightN      = cCurrentRightN;
 				dBestImprovement = dCurrentImprovement;
+
+				bestSplit = proposedSplit;
 			}
 		}
 
 		// now move the new observation to the left
 		// if another observation arrives we will evaluate this
+		proposedSplit.UpdateLeftNode(dWZ, dW);
 		dCurrentLeftSumZ += dWZ;
 		dCurrentLeftTotalW += dW;
 		cCurrentLeftN++;
@@ -304,8 +309,9 @@ void VarSplitter::Set(CNode& nodeToSplit)
 	iCurrentSplitVar    = UINT_MAX;
 	dCurrentSplitValue  = -HUGE_VAL;
 
-	fIsSplit = false;
 
+	bestSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN);
+	proposedSplit.ResetSplitProperties(0, dInitTotalW, cInitN);
 	//this->pThisNode = pThisNode;
 	//this->ppParentPointerToThisNode = ppParentPointerToThisNode;
 
@@ -361,6 +367,8 @@ void VarSplitter::ResetForNewVar
 
   dCurrentImprovement = 0.0;
 
+  proposedSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN,
+  		  proposedSplit.SplitValue,	cCurrentVarClasses, iWhichVar);
   dLastXValue = -HUGE_VAL;
 }
 

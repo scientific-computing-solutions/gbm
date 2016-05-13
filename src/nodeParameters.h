@@ -37,14 +37,14 @@ public:
 							 double splitValue = -HUGE_VAL, unsigned long variableClasses=1, unsigned long splitVar = UINT_MAX);
 	void UpdateMissingNode(double predIncrement, double trainWIncrement, long numIncrement = 1);
 	void UpdateLeftNode(double predIncrement, double trainWIncrement, long numIncrement = 1);
-	void UpdateLeftNodeWithCat(long catIndex);
-	void IncrementCategories(unsigned long cat, double predIncrement, double trainWIncrement);
-	unsigned long SetAndReturnNumGroupMeans();
+	//void UpdateLeftNodeWithCat(long catIndex);
+	//void IncrementCategories(unsigned long cat, double predIncrement, double trainWIncrement);
+	//unsigned long SetAndReturnNumGroupMeans();
 	double GetImprovement() { return ImprovedResiduals;};
 	bool SplitIsCorrMonotonic(long specifyMonotone);
 	void NodeGradResiduals();
 	bool HasMinNumOfObs(long minObsInNode);
-	void setBestCategory()
+	/*void setBestCategory()
 	{
 		int count = 0;
 		aiBestCategory.resize(groupMeanAndCat.size());
@@ -55,7 +55,7 @@ public:
 			aiBestCategory[count] = it->second;
 			count++;
 		}
-	};
+	};*/
 	NodeParams& operator=(const NodeParams rhs)
 	{
 		RightWeightResiduals = rhs.RightWeightResiduals;
@@ -105,11 +105,11 @@ public:
     std::vector<int> aiBestCategory; // Vector of levels ordering
 	double ImprovedResiduals;
 
-	// Splitting arrays for Categorical variable
+	/*// Splitting arrays for Categorical variable
 	std::vector<double> adGroupSumZ;
 	std::vector<double> adGroupW;
 	std::vector<unsigned long> acGroupN;
-	std::vector<std::pair<double, int> > groupMeanAndCat;
+	std::vector<std::pair<double, int> > groupMeanAndCat;*/
 
 };
 

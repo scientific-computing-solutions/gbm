@@ -92,10 +92,6 @@ public:
 		}
 
 	double BestImprovement() { return dBestImprovement; }
-	void SetToSplit()
-	{
-		fIsSplit = true;
-	};
 	void SetupNewNodes(CNode& nodeToSplit)
 	{
 		nodeToSplit.SplitNode(iBestSplitVar,
@@ -116,8 +112,6 @@ public:
 
 	void EvaluateCategoricalSplit();
 	void WrapUpCurrentVariable();
-	double ThisNodePrediction() {return pThisNode->dPrediction;}
-	bool operator<(const VarSplitter &ns) {return dBestImprovement<ns.dBestImprovement;}
 
 	unsigned long iBestSplitVar;
 	double dBestSplitValue;
@@ -146,7 +140,6 @@ public:
 	double dBestImprovement;
 
 private:
-	bool fIsSplit;
 
 	unsigned long cMinObsInNode;
 
@@ -173,9 +166,7 @@ private:
 	std::vector<int> aiCurrentCategory;
 	std::vector<unsigned long> aiBestCategory;
 
-	CNode* pThisNode;
-	CNode **ppParentPointerToThisNode;
-
+	NodeParams bestSplit, proposedSplit;
 	/*//---------------------
 	// Private Functions
 	//---------------------
@@ -187,7 +178,7 @@ private:
 	double InitTotalWeight, InitWeightResiduals, dLastXValue;
 	unsigned long InitNumObs;
 	unsigned long minObsInNode;
-	NodeParams bestSplit, proposedSplit;
+
 	bool fIsSplit;*/
 
 

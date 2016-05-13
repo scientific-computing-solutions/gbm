@@ -33,11 +33,11 @@ NodeParams::NodeParams()
 	SplitClass = 0;
 	SplitVar = 0;
 
-	adGroupSumZ.resize(1024);
+	/*adGroupSumZ.resize(1024);
 	adGroupW.resize(1024);
 	acGroupN.resize(1024);
 	groupMeanAndCat.resize(1024);
-	aiBestCategory.resize(1024);
+	aiBestCategory.resize(1024);*/
 }
 
 NodeParams::~NodeParams()
@@ -70,9 +70,9 @@ void NodeParams::ResetSplitProperties(double weightedResiduals, double trainingW
 		SplitClass = variableClasses;
 
 
-		std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + variableClasses, 0);
+		/*std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + variableClasses, 0);
 		std::fill(adGroupW.begin(), adGroupW.begin() + variableClasses, 0);
-		std::fill(acGroupN.begin(), acGroupN.begin() + variableClasses, 0);
+		std::fill(acGroupN.begin(), acGroupN.begin() + variableClasses, 0);*/
 
 }
 
@@ -147,15 +147,15 @@ bool NodeParams::HasMinNumOfObs(long minObsInNode)
 				(RightNumObs >= minObsInNode));
 }
 
-void NodeParams::IncrementCategories(unsigned long cat, double predIncrement, double trainWIncrement)
+/*void NodeParams::IncrementCategories(unsigned long cat, double predIncrement, double trainWIncrement)
 {
 	adGroupSumZ[cat] += predIncrement;
 	adGroupW[cat] += trainWIncrement;
 	acGroupN[cat]++;
-}
+}*/
 
 
-unsigned long NodeParams::SetAndReturnNumGroupMeans()
+/*unsigned long NodeParams::SetAndReturnNumGroupMeans()
 {
 	unsigned long cFiniteMeans = 0;
 
@@ -177,12 +177,12 @@ unsigned long NodeParams::SetAndReturnNumGroupMeans()
   std::sort(groupMeanAndCat.begin(), groupMeanAndCat.begin() + SplitClass);
 
   return cFiniteMeans;
-}
+}*/
 
-void NodeParams::UpdateLeftNodeWithCat(long catIndex)
+/*void NodeParams::UpdateLeftNodeWithCat(long catIndex)
 {
 
 	UpdateLeftNode(adGroupSumZ[groupMeanAndCat[catIndex].second],
 			adGroupW[groupMeanAndCat[catIndex].second],
 			acGroupN[groupMeanAndCat[catIndex].second]);
-}
+}*/

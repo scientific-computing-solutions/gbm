@@ -109,7 +109,7 @@ public:
 	CNode* pMissingNode;
 
 	// Parameters
-	//NodeParams childrenParams;
+	NodeParams childrenParams;
 
 	//TODO: Currently most useful in printing out tree
 	// This nodes parameters
