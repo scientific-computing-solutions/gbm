@@ -49,9 +49,9 @@ public:
 	//---------------------
     void GenerateAllSplits(vector<CNode*>& vecpTermNodes, const CDataset& data,
     						double* residuals, vector<unsigned long>& aiNodeAssign);
-    double SplitAndCalcImprovement(vector<CNode*>& vecpTermNodes,
-    					const CDataset& data,
-    					vector<unsigned long>& aiNodeAssign);
+    double CalcImprovement(long& iBestNode, vector<CNode*>& vecpTermNodes);
+    void Split(long& iBestNode, vector<CNode*>& vecpTermNodes, const CDataset& data,
+    		vector<unsigned long>& aiNodeAssign);
     inline void Reset(){ cTerminalNodes = 1; }
     void SetRoot(CNode& rootNode) { variableSplitters[0].Set(rootNode);}
 

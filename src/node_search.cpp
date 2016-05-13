@@ -38,14 +38,15 @@ void CNodeSearch::GenerateAllSplits
 	const CDataset::index_vector colNumbers(data.random_order());
 	const CDataset::index_vector::const_iterator final = colNumbers.begin() + data.get_numFeatures();
 
-	/*for(long iNode = 0; iNode < cTerminalNodes; iNode++)
+	for(long iNode = 0; iNode < cTerminalNodes; iNode++)
 	{
 		// If node has split then skip
 		if(vecpTermNodes[iNode]->splitAssigned) continue;
-		variableSplitters[iNode].Reset();
-		variableSplitters[iNode].SetForNode(*vecpTermNodes[iNode]);
+		variableSplitters[iNode].Set(*vecpTermNodes[iNode]);
+		/*variableSplitters[iNode].Reset();
+		variableSplitters[iNode].SetForNode(*vecpTermNodes[iNode]);*/
 
-	}*/
+	}
 
 	/*// Loop over all variables
 	for(CDataset::index_vector::const_iterator it=colNumbers.begin();
@@ -108,6 +109,7 @@ void CNodeSearch::GenerateAllSplits
 	      for(long iOrderObs=0; iOrderObs < data.get_trainSize(); iOrderObs++)
 	        {
 		  iWhichObs = data.order_ptr()[iVar*data.get_trainSize() + iOrderObs];
+		  if(vecpTermNodes[aiNodeAssign[iWhichObs]]->splitAssigned) continue;
 		  if(data.GetBagElem(iWhichObs))
 	            {
 		      const int iNode = aiNodeAssign[iWhichObs];
@@ -120,6 +122,7 @@ void CNodeSearch::GenerateAllSplits
 	        }
 	        for(long iNode=0; iNode<cTerminalNodes; iNode++)
 	        {
+	        	if(vecpTermNodes[iNode]->splitAssigned) continue;
 	            if(cVarClasses != 0) // evaluate if categorical split
 	            {
 		      variableSplitters[iNode].EvaluateCategoricalSplit();
@@ -144,19 +147,19 @@ void CNodeSearch::GenerateAllSplits
 }
 
 
-double CNodeSearch::SplitAndCalcImprovement
+double CNodeSearch::CalcImprovement
 (
-		vector<CNode*>& vecpTermNodes,
-		const CDataset& data,
-		vector<unsigned long>& aiNodeAssign
+	long &iBestNode,
+	vector<CNode*>& vecpTermNodes
 )
 {
 	// search for the best split
-	long iBestNode = 0;
+	/*long iBestNode = 0;*/
 	double dBestNodeImprovement = 0.0;
 	for(long iNode=0; iNode < cTerminalNodes; iNode++)
 	{
-		variableSplitters[iNode].SetToSplit();
+		//variableSplitters[iNode].SetToSplit();
+		vecpTermNodes[iNode]->SplitAssign();
 		if(variableSplitters[iNode].BestImprovement() > dBestNodeImprovement)//vecpTermNodes[iNode]->SplitImprovement())
 		{
 			iBestNode = iNode;
@@ -169,7 +172,7 @@ double CNodeSearch::SplitAndCalcImprovement
 
 	}
 	// Split Node if improvement is non-zero
-	if(dBestNodeImprovement != 0.0)
+	/*if(dBestNodeImprovement != 0.0)
 	{
 		//Split Node
 		//vecpTermNodes[iBestNode]->SplitNode();
@@ -183,9 +186,34 @@ double CNodeSearch::SplitAndCalcImprovement
 		vecpTermNodes[cTerminalNodes-2] = vecpTermNodes[iBestNode]->pRightNode;
 		vecpTermNodes[cTerminalNodes-1] = vecpTermNodes[iBestNode]->pMissingNode;
 		vecpTermNodes[iBestNode] = vecpTermNodes[iBestNode]->pLeftNode;
-	}
+
+	}*/
 
 	return dBestNodeImprovement;
+}
+
+void CNodeSearch::Split(long& iBestNode, vector<CNode*>& vecpTermNodes, const CDataset& data,
+		vector<unsigned long>& aiNodeAssign)
+{
+	// Split Node if improvement is non-zero
+		//Split Node
+		//vecpTermNodes[iBestNode]->SplitNode();
+		variableSplitters[iBestNode].SetupNewNodes(*vecpTermNodes[iBestNode]);
+		cTerminalNodes += 2;
+
+		// Move data to children nodes
+		ReAssignData(iBestNode, vecpTermNodes, data, aiNodeAssign);
+
+		// Add children to terminal node list
+		vecpTermNodes[cTerminalNodes-2] = vecpTermNodes[iBestNode]->pRightNode;
+		vecpTermNodes[cTerminalNodes-1] = vecpTermNodes[iBestNode]->pMissingNode;
+		vecpTermNodes[iBestNode] = vecpTermNodes[iBestNode]->pLeftNode;
+
+		/*variableSplitters[cTerminalNodes-2].Set(*vecpTermNodes[cTerminalNodes-2]);
+		variableSplitters[cTerminalNodes-1].Set(*vecpTermNodes[cTerminalNodes-1]);
+		variableSplitters[iBestNode].Set(*vecpTermNodes[iBestNode]);*/
+
+
 }
 
 //----------------------------------------

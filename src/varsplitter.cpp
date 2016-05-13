@@ -20,7 +20,7 @@ VarSplitter::VarSplitter(unsigned long minNumObs)//:bestSplit(), proposedSplit()
 	iBestSplitVar = 0;
 
 	dBestSplitValue = 0.0;
-	fIsSplit = false;
+	//fIsSplit = false;
 
 	dBestMissingTotalW = 0.0;
 	dCurrentMissingTotalW = 0.0;
@@ -58,7 +58,7 @@ void VarSplitter::IncorporateObs
 
 	static double dWZ = 0.0;
 
-	if(fIsSplit) return;
+	//if(fIsSplit) return;
 
 	dWZ = dW*dZ;
 
@@ -175,7 +175,7 @@ void VarSplitter::EvaluateCategoricalSplit()
 	 long i=0;
 	  unsigned long cFiniteMeans = 0;
 
-	  if(fIsSplit) return;
+	  //if(fIsSplit) return;
 
 	  if(cCurrentVarClasses == 0)
 	    {
@@ -336,7 +336,7 @@ void VarSplitter::ResetForNewVar
     long cCurrentVarClasses
 )
 {
-  if(fIsSplit) return;
+  //if(fIsSplit) return;
 
   if (int(cCurrentVarClasses) > adGroupSumZ.size()) {
     throw GBM::failure("too many variable classes");
