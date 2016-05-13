@@ -82,47 +82,6 @@ void VarSplitter::IncorporateObs
 	{
 		proposedSplit.IncrementCategories((unsigned long) dX, dW*dZ, dW);
 	}
-	/*if(fIsSplit) return;
-	if(ISNA(dX))
-	{
-		proposedSplit.UpdateMissingNode(dW*dZ, dW);
-	}
-	else if(proposedSplit.SplitClass == 0)
-	{
-		if(dLastXValue > dX)
-		{
-			throw GBM::failure("Observations are not in order. gbm() was unable to build an index for the design matrix. Could be a bug in gbm or an unusual data type in data.");
-		}
-
-		// Evaluate the current split
-		// the newest observation is still in the right child
-		proposedSplit.SplitValue = 0.5*(dLastXValue + dX);
-
-		if((dLastXValue != dX) &&
-			proposedSplit.HasMinNumOfObs(minObsInNode) &&
-			proposedSplit.SplitIsCorrMonotonic(lMonotone))
-		{
-			proposedSplit.NodeGradResiduals();
-
-			if(proposedSplit.HasMinNumOfObs(minObsInNode) &&
-					(proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
-			{
-				bestSplit = proposedSplit;
-				WrapUpSplit();
-
-			}
-
-		}
-
-		// now move the new observation to the left
-		// if another observation arrives we will evaluate this
-		proposedSplit.UpdateLeftNode(dW*dZ, dW);
-		dLastXValue = dX;
-	}
-	else // variable is categorical, evaluates later
-	{
-		proposedSplit.IncrementCategories((unsigned long) dX, dW*dZ, dW);
-	}*/
 }
 
 
@@ -151,34 +110,6 @@ void VarSplitter::EvaluateCategoricalSplit()
 		  bestSplit = proposedSplit;
 	        }
 	    }
- /* long i=0;
-  unsigned long cFiniteMeans = 0;
-  if(fIsSplit) return;
-  if(proposedSplit.SplitClass == 0)
-	{
-	  throw GBM::invalid_argument("Evaluate Categorical Split - Split variable is not categorical");
-	}
-
-  cFiniteMeans = proposedSplit.SetAndReturnNumGroupMeans();
-
-  // if only one group has a finite mean it will not consider
-  // might be all are missing so no categories enter here
-  for(i=0; (cFiniteMeans>1) && ((ULONG)i<cFiniteMeans-1); i++)
-    {
-      proposedSplit.SplitValue = (double)i;
-      proposedSplit.UpdateLeftNodeWithCat(i);
-      proposedSplit.NodeGradResiduals();
-      proposedSplit.setBestCategory();
-
-      if(proposedSplit.HasMinNumOfObs(minObsInNode)
-    		  && (proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
-      {
-    	  bestSplit = proposedSplit;
-		  WrapUpSplit();
-
-      }
-
-    }*/
 }
 
 void VarSplitter::Set(CNode& nodeToSplit)
@@ -188,14 +119,6 @@ void VarSplitter::Set(CNode& nodeToSplit)
 	cInitN = nodeToSplit.cN;
 
 	bestSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN);
-	/*
-	InitWeightResiduals = nodeToSplit.dPrediction * nodeToSplit.dTrainW;
-	InitTotalWeight = nodeToSplit.dTrainW;
-	InitNumObs = nodeToSplit.cN;
-
-	bestSplit.ResetSplitProperties(InitWeightResiduals, InitTotalWeight, InitNumObs);
-	dLastXValue = -HUGE_VAL;*/
-
 }
 
 /*void VarSplitter::SetForVariable(unsigned long iWhichVar, long cVarClasses)

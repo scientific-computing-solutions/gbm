@@ -4,9 +4,9 @@
 // Includes
 //-----------------------------------
 #include "node.h"
-//#include "terminalStrategy.h"
-//#include "continuousStrategy.h"
-//#include "categoricalStrategy.h"
+#include "terminalStrategy.h"
+#include "continuousStrategy.h"
+#include "categoricalStrategy.h"
 
 //----------------------------------------
 // Function Members - Public
@@ -30,7 +30,7 @@ CNode::CNode(double nodePrediction,
 	// Set up split type and strategy
 	splitType = none;
 	splitAssigned = false;
-	//nodeStrategy = new TerminalStrategy(this);
+	nodeStrategy = new TerminalStrategy(this);
 
 }
 
@@ -40,13 +40,13 @@ void CNode::SetStrategy()
 	switch(splitType)
 	{
 	case none:
-		//nodeStrategy = new TerminalStrategy(this);
+		nodeStrategy = new TerminalStrategy(this);
 		break;
 	case continuous:
-		//nodeStrategy = new ContinuousStrategy(this);
+		nodeStrategy = new ContinuousStrategy(this);
 		break;
 	case categorical:
-		//nodeStrategy = new CategoricalStrategy(this);
+		nodeStrategy = new CategoricalStrategy(this);
 		break;
 	default:
 		throw GBM::failure("Node State not recognised.");
@@ -61,7 +61,7 @@ CNode::~CNode()
     delete pLeftNode;
     delete pRightNode;
     delete pMissingNode;
-    //delete nodeStrategy;
+    delete nodeStrategy;
 }
 
 void CNode::Adjust
@@ -69,7 +69,7 @@ void CNode::Adjust
     unsigned long cMinObsInNode
 )
 {
-	switch(splitType)
+	/*switch(splitType)
 	{
 	case none:
 		return;
@@ -119,8 +119,8 @@ void CNode::Adjust
 	default:
 			throw GBM::failure("Node State not recognised.");
 			break;
-	}
-	//nodeStrategy->Adjust(cMinObsInNode);
+	}*/
+	nodeStrategy->Adjust(cMinObsInNode);
 }
 
 void CNode::Predict
@@ -130,7 +130,7 @@ void CNode::Predict
     double &dFadj
 )
 {
-	signed char schWhichNode;
+	/*signed char schWhichNode;
 	switch(splitType)
 	{
 	case none:
@@ -169,8 +169,8 @@ void CNode::Predict
 	default:
 			throw GBM::failure("Node State not recognised.");
 			break;
-	}
-	//nodeStrategy->Predict(data, iRow, dFadj);
+	}*/
+	nodeStrategy->Predict(data, iRow, dFadj);
 }
 
 
@@ -179,7 +179,7 @@ void CNode::GetVarRelativeInfluence
     double *adRelInf
 )
 {
-	switch(splitType)
+	/*switch(splitType)
 	{
 	case none:
 		return;
@@ -197,8 +197,8 @@ void CNode::GetVarRelativeInfluence
 	default:
 			throw GBM::failure("Node State not recognised.");
 			break;
-	}
-	//nodeStrategy->GetVarRelativeInfluence(adRelInf);
+	}*/
+	nodeStrategy->GetVarRelativeInfluence(adRelInf);
 }
 
 void CNode::PrintSubtree
@@ -206,7 +206,7 @@ void CNode::PrintSubtree
  unsigned long cIndent
 )
 {
-	const std::size_t cLeftCategory = aiLeftCategory.size();
+	/*const std::size_t cLeftCategory = aiLeftCategory.size();
 	switch(splitType)
 	{
 	case none:
@@ -284,8 +284,8 @@ void CNode::PrintSubtree
 	default:
 			throw GBM::failure("Node State not recognised.");
 			break;
-	}
-  //nodeStrategy->PrintSubTree(cIndent);
+	}*/
+  nodeStrategy->PrintSubTree(cIndent);
 }
 
 void CNode::SplitAssign()
@@ -300,12 +300,12 @@ void CNode::SplitNode()
 	if(childrenParams.SplitClass==0)
 	{
 		splitType = continuous;
-		//SetStrategy();
+		SetStrategy();
 	}
 	else
 	{
 		splitType = categorical;
-		//SetStrategy();
+		SetStrategy();
 		aiLeftCategory.resize(1 + (ULONG)childrenParams.SplitValue);
 					  std::copy(childrenParams.aiBestCategory.begin(),
 								childrenParams.aiBestCategory.begin() + aiLeftCategory.size(),
@@ -333,7 +333,7 @@ signed char CNode::WhichNode
     unsigned long iObs
 )
 {
-	signed char ReturnValue = 0;
+	/*signed char ReturnValue = 0;
 	double dX = data.x_value(iObs, iSplitVar);
 	switch(splitType)
 	{
@@ -390,8 +390,8 @@ signed char CNode::WhichNode
 			break;
 	}
 
-	return ReturnValue;
-	//return nodeStrategy->WhichNode(data, iObs);
+	return ReturnValue;*/
+	return nodeStrategy->WhichNode(data, iObs);
 }
 
 
@@ -412,7 +412,7 @@ void CNode::TransferTreeToRList
     double dShrinkage
 )
 {
-	switch(splitType)
+	/*switch(splitType)
 	{
 	case none:
 	{
@@ -557,8 +557,8 @@ void CNode::TransferTreeToRList
 		throw GBM::failure("Node State not recognised.");
 		break;
 	}
-	}
-	/*nodeStrategy->TransferTreeToRList(iNodeID,
+	}*/
+	nodeStrategy->TransferTreeToRList(iNodeID,
 										data,
 									aiSplitVar,
 									adSplitPoint,
@@ -570,7 +570,7 @@ void CNode::TransferTreeToRList
 									adPred,
 									vecSplitCodes,
 									cCatSplitsOld,
-									dShrinkage);*/
+									dShrinkage);
 }
 
 

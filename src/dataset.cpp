@@ -13,6 +13,7 @@
 #include "dataset.h"
 #include <Rcpp.h>
 
+/*
 //-----------------------------------
 // Class Definition - Private Variable
 //-----------------------------------
@@ -156,6 +157,7 @@ public:
 
 
 };
+*/
 
 //----------------------------------------
 // Function Members - Public
@@ -220,7 +222,7 @@ CDataset::~CDataset()
 	delete dataImpl;
 }
 
-//-----------------------------------
+/*//-----------------------------------
 // Function: nrow
 //
 // Returns: number of rows in data
@@ -597,7 +599,7 @@ bool CDataset::GetBagElem(long index) const
 void CDataset::FillRemainderOfBag(long offset)
 {
 	std::fill((dataImpl->afInBag).begin() + offset, (dataImpl->afInBag).end(), false);
-}
+}*/
 
 
 

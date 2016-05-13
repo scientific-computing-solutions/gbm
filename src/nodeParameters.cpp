@@ -45,7 +45,7 @@ NodeParams::~NodeParams()
 
 }
 
-void NodeParams::ResetSplitProperties(double weightedResiduals, double trainingWeight,
+/*void NodeParams::ResetSplitProperties(double weightedResiduals, double trainingWeight,
 									   unsigned long numObs, double splitValue, unsigned long variableClasses, unsigned long splitVar)
 {
 
@@ -185,4 +185,4 @@ void NodeParams::UpdateLeftNodeWithCat(long catIndex)
 	UpdateLeftNode(adGroupSumZ[groupMeanAndCat[catIndex].second],
 			adGroupW[groupMeanAndCat[catIndex].second],
 			acGroupN[groupMeanAndCat[catIndex].second]);
-}
+}*/

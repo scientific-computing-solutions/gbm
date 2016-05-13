@@ -64,7 +64,7 @@ public:
     void SplitAssign();
     void SplitNode();
     void PrintSubtree(unsigned long cIndent);
-    //double SplitImprovement(){ return childrenParams.ImprovedResiduals;}
+    double SplitImprovement(){ return childrenParams.ImprovedResiduals;}
     void TransferTreeToRList(int &iNodeID,
 				     const CDataset &data,
 				     int *aiSplitVar,
@@ -119,7 +119,7 @@ private:
 	//---------------------
 	// Private Variables
 	//---------------------
-    //GenericNodeStrategy* nodeStrategy;
+    GenericNodeStrategy* nodeStrategy;
 
 };
 
