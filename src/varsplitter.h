@@ -48,7 +48,7 @@ public:
 	{
 		fIsSplit = true;
 	};
-	inline NodeParams GetBestSplit() { return bestSplit;};
+
 	void Reset();*/
 	 void IncorporateObs(double dX,
 				double dZ,
@@ -61,31 +61,15 @@ public:
 
 
 	inline double BestImprovement() { return bestSplit.ImprovedResiduals; }
+	inline NodeParams GetBestSplit() { return bestSplit;}
 	void SetupNewNodes(CNode& nodeToSplit)
 	{
-		nodeToSplit.SplitNode(bestSplit.SplitVar,
-				bestSplit.SplitClass,
-				bestSplit.SplitValue,
-				bestSplit.LeftWeightResiduals,
-				bestSplit.LeftTotalWeight,
-				bestSplit.LeftNumObs,
-				bestSplit.RightWeightResiduals,
-				bestSplit.RightTotalWeight,
-				bestSplit.RightNumObs,
-				bestSplit.MissingWeightResiduals,
-				bestSplit.MissingTotalWeight,
-				bestSplit.MissingNumObs,
-				bestSplit.ImprovedResiduals,
-				aiBestCategory
-				);
+		nodeToSplit.SplitNode();
 	}
 
 	void EvaluateCategoricalSplit();
 	void WrapUpCurrentVariable();
 
-
-	long cCurrentVarClasses;
-	long cBestVarClasses;
 	double dInitTotalW;
 	double dInitSumZ;
 	unsigned long cInitN;
@@ -96,15 +80,6 @@ private:
 	unsigned long cMinObsInNode;
 
 	double dLastXValue;
-
-	std::vector<double> adGroupSumZ;
-	std::vector<double> adGroupW;
-	std::vector<unsigned long> acGroupN;
-	std::vector<double> adGroupMean;
-	// this is an int to fit in with R API
-	// it's probably best not to ask.
-	std::vector<int> aiCurrentCategory;
-	std::vector<unsigned long> aiBestCategory;
 
 	NodeParams bestSplit, proposedSplit;
 	//void WrapUpSplit();

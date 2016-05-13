@@ -16,12 +16,6 @@
 //---------------------
 VarSplitter::VarSplitter(unsigned long minNumObs):bestSplit(), proposedSplit()
 {
-	adGroupSumZ.resize(1024);
-	adGroupW.resize(1024);
-	acGroupN.resize(1024);
-	adGroupMean.resize(1024);
-	aiCurrentCategory.resize(1024);
-	aiBestCategory.resize(1024);
 	cMinObsInNode = minNumObs;
 
 	/*InitTotalWeight = 0.0;
@@ -56,7 +50,7 @@ void VarSplitter::IncorporateObs
 		proposedSplit.UpdateMissingNode(dWZ, dW);
 
 	}
-	else if(cCurrentVarClasses == 0)   // variable is continuous
+	else if(proposedSplit.SplitClass == 0)   // variable is continuous
 	{
 		if(dLastXValue > dX)
 		{
@@ -87,9 +81,6 @@ void VarSplitter::IncorporateObs
 	else // variable is categorical, evaluates later
 	{
 		proposedSplit.IncrementCategories((unsigned long) dX, dW*dZ, dW);
-		/*adGroupSumZ[(unsigned long)dX] += dWZ;
-		adGroupW[(unsigned long)dX] += dW;
-		acGroupN[(unsigned long)dX] ++;*/
 	}
 	/*if(fIsSplit) return;
 	if(ISNA(dX))
@@ -140,58 +131,24 @@ void VarSplitter::EvaluateCategoricalSplit()
 	 long i=0;
 	  unsigned long cFiniteMeans = 0;
 
-/*	  //if(fIsSplit) return;
-
-	  if(cCurrentVarClasses == 0)
-	    {
-	      throw GBM::invalid_argument();
-	    }
-
-	  cFiniteMeans = 0;
-	  for(i=0; i<cCurrentVarClasses; i++)
-	    {
-	      aiCurrentCategory[i] = i;
-	      if(adGroupW[i] != 0.0)
-	        {
-		  adGroupMean[i] = adGroupSumZ[i]/adGroupW[i];
-		  cFiniteMeans++;
-	        }
-	      else
-	        {
-		  adGroupMean[i] = HUGE_VAL;
-	        }
-	    }
-
-	  rsort_with_index(&adGroupMean[0],&aiCurrentCategory[0],cCurrentVarClasses);*/
 	  cFiniteMeans = proposedSplit.SetAndReturnNumGroupMeans();
 
 	  // if only one group has a finite mean it will not consider
 	  // might be all are missing so no categories enter here
 	  for(i=0; (cFiniteMeans>1) && ((ULONG)i<cFiniteMeans-1); i++)
 	    {
-	   
+
 
 	      proposedSplit.SplitValue = (double) i;
 	      proposedSplit.UpdateLeftNodeWithCat(i);
 	      proposedSplit.setBestCategory();
-	      /*proposedSplit.UpdateLeftNode(adGroupSumZ[aiCurrentCategory[i]], adGroupW[aiCurrentCategory[i]],
-	    		  	  	  	  	  	   acGroupN[aiCurrentCategory[i]]);*/
 	      proposedSplit.NodeGradResiduals();
 
 		  if(proposedSplit.HasMinNumOfObs(cMinObsInNode)
 		      		  && (proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
 		{
 
-		  if(bestSplit.SplitVar!= proposedSplit.SplitVar)
-		  {
-		      
-		      cBestVarClasses = cCurrentVarClasses;
-		      std::copy(aiCurrentCategory.begin(),
-				aiCurrentCategory.end(),
-				aiBestCategory.begin());
-		  }
 		  bestSplit = proposedSplit;
-
 	        }
 	    }
  /* long i=0;
@@ -259,16 +216,6 @@ void VarSplitter::ResetForNewVar
 )
 {
   //if(fIsSplit) return;
-
-  if (int(cCurrentVarClasses) > adGroupSumZ.size()) {
-    throw GBM::failure("too many variable classes");
-  }
-
-  std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + cCurrentVarClasses, 0);
-  std::fill(adGroupW.begin(), adGroupW.begin() + cCurrentVarClasses, 0);
-  std::fill(acGroupN.begin(), acGroupN.begin() + cCurrentVarClasses, 0);
-  this->cCurrentVarClasses = cCurrentVarClasses;
-
 
   proposedSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN,
   		  proposedSplit.SplitValue,	cCurrentVarClasses, iWhichVar);

@@ -293,30 +293,11 @@ void CNode::SplitAssign()
 	splitAssigned = true;
 }
 
-void CNode::SplitNode
-(
-		unsigned long iBestSplitVar,
-		long BestVarClass,
-		double dBestSplitValue,
-		double dBestLeftSumZ,
-		double dBestLeftTotalW,
-		unsigned long cBestLeftN,
-
-		double dBestRightSumZ,
-		double dBestRightTotalW,
-		unsigned long cBestRightN,
-
-		double dBestMissingSumZ,
-		double dBestMissingTotalW,
-		unsigned long cBestMissingN,
-
-		double dBestImprovement,
-		std::vector<unsigned long>& aiBestCategory
-)
+void CNode::SplitNode()
 {
 
 	// set up a continuous split
-	if(BestVarClass==0)
+	if(childrenParams.SplitClass==0)
 	{
 		splitType = continuous;
 		//SetStrategy();
@@ -325,22 +306,24 @@ void CNode::SplitNode
 	{
 		splitType = categorical;
 		//SetStrategy();
-		aiLeftCategory.resize(1 + (ULONG)dBestSplitValue);
-					  std::copy(aiBestCategory.begin(),
-								aiBestCategory.begin() + aiLeftCategory.size(),
+		aiLeftCategory.resize(1 + (ULONG)childrenParams.SplitValue);
+					  std::copy(childrenParams.aiBestCategory.begin(),
+								childrenParams.aiBestCategory.begin() + aiLeftCategory.size(),
 								 aiLeftCategory.begin());
 	}
 
-	iSplitVar = iBestSplitVar;
-	dSplitValue = dBestSplitValue;
-	dImprovement = dBestImprovement;
 
-	pLeftNode    = new CNode(dBestLeftSumZ/dBestLeftTotalW, dBestLeftTotalW,
-									cBestLeftN);
-	pRightNode   = new CNode(dBestRightSumZ/dBestRightTotalW, dBestRightTotalW,
-							cBestRightN);
-	pMissingNode = new CNode(dBestMissingSumZ/dBestMissingTotalW, dBestMissingTotalW,
-							cBestMissingN);
+	iSplitVar = childrenParams.SplitVar;
+		dSplitValue = childrenParams.SplitValue;
+		dImprovement = childrenParams.ImprovedResiduals;
+
+		pLeftNode    = new CNode(childrenParams.LeftWeightResiduals/childrenParams.LeftTotalWeight, childrenParams.LeftTotalWeight,
+										childrenParams.LeftNumObs);
+		pRightNode    = new CNode(childrenParams.RightWeightResiduals/childrenParams.RightTotalWeight, childrenParams.RightTotalWeight,
+												childrenParams.RightNumObs);
+		pMissingNode    = new CNode(childrenParams.MissingWeightResiduals/childrenParams.MissingTotalWeight, childrenParams.MissingTotalWeight,
+												childrenParams.MissingNumObs);
+
 
 }
 

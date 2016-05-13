@@ -62,26 +62,7 @@ public:
 
     void GetVarRelativeInfluence(double *adRelInf);
     void SplitAssign();
-    void SplitNode
-    		(
-    				unsigned long iBestSplitVar,
-    				long BestVarClass,
-    				double dBestSplitValue,
-    				double dBestLeftSumZ,
-    				double dBestLeftTotalW,
-    				unsigned long cBestLeftN,
-
-    				double dBestRightSumZ,
-    				double dBestRightTotalW,
-    				unsigned long cBestRightN,
-
-    				double dBestMissingSumZ,
-    				double dBestMissingTotalW,
-    				unsigned long cBestMissingN,
-
-    				double dBestImprovement,
-    				std::vector<unsigned long>& aiBestCategory
-    		);
+    void SplitNode();
     void PrintSubtree(unsigned long cIndent);
     //double SplitImprovement(){ return childrenParams.ImprovedResiduals;}
     void TransferTreeToRList(int &iNodeID,
