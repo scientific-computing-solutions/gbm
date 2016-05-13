@@ -59,56 +59,10 @@ public:
 	void ResetForNewVar(unsigned long iWhichVar,
 			long cVarClasses);
 
-	static double Improvement
-		(
-			double dLeftW,
-			double dRightW,
-			double dMissingW,
-			double dLeftSum,
-			double dRightSum,
-			double dMissingSum
-		)
-		{
-			double dTemp = 0.0;
-			double dResult = 0.0;
 
-			if(dMissingW == 0.0)
-			{
-				dTemp = dLeftSum/dLeftW - dRightSum/dRightW;
-				dResult = dLeftW*dRightW*dTemp*dTemp/(dLeftW+dRightW);
-			}
-			else
-			{
-				dTemp = dLeftSum/dLeftW - dRightSum/dRightW;
-				dResult += dLeftW*dRightW*dTemp*dTemp;
-				dTemp = dLeftSum/dLeftW - dMissingSum/dMissingW;
-				dResult += dLeftW*dMissingW*dTemp*dTemp;
-				dTemp = dRightSum/dRightW - dMissingSum/dMissingW;
-				dResult += dRightW*dMissingW*dTemp*dTemp;
-				dResult /= (dLeftW + dRightW + dMissingW);
-			}
-
-			return dResult;
-		}
-
-	double BestImprovement() { return dBestImprovement; }
+	inline double BestImprovement() { return bestSplit.ImprovedResiduals; }
 	void SetupNewNodes(CNode& nodeToSplit)
 	{
-/*		nodeToSplit.SplitNode(iBestSplitVar,
-		cBestVarClasses,
-		 dBestSplitValue,
-		dBestLeftSumZ,
-		 dBestLeftTotalW,
-		 cBestLeftN,
-		 dBestRightSumZ,
-		 dBestRightTotalW,
-		cBestRightN,
-		dBestMissingSumZ,
-		dBestMissingTotalW,
-		cBestMissingN,
-		dBestImprovement,
-		aiBestCategory);*/
-
 		nodeToSplit.SplitNode(bestSplit.SplitVar,
 				bestSplit.SplitClass,
 				bestSplit.SplitValue,
@@ -129,47 +83,17 @@ public:
 	void EvaluateCategoricalSplit();
 	void WrapUpCurrentVariable();
 
-	unsigned long iBestSplitVar;
-	double dBestSplitValue;
-
-	double dBestLeftSumZ;
-	double dBestLeftTotalW;
-	unsigned long cBestLeftN;
-
-	double dBestRightSumZ;
-	double dBestRightTotalW;
-	unsigned long cBestRightN;
-
-	double dBestMissingSumZ;
-	double dBestMissingTotalW;
-	unsigned long cBestMissingN;
-
-	double dCurrentMissingSumZ;
-	double dCurrentMissingTotalW;
-	unsigned long cCurrentMissingN;
 
 	long cCurrentVarClasses;
 	long cBestVarClasses;
 	double dInitTotalW;
 	double dInitSumZ;
 	unsigned long cInitN;
-	double dBestImprovement;
+
 
 private:
 
 	unsigned long cMinObsInNode;
-
-
-
-	double dCurrentLeftSumZ;
-	double dCurrentLeftTotalW;
-	unsigned long cCurrentLeftN;
-	double dCurrentRightSumZ;
-	double dCurrentRightTotalW;
-	unsigned long cCurrentRightN;
-	double dCurrentImprovement;
-	unsigned long iCurrentSplitVar;
-	double dCurrentSplitValue;
 
 	double dLastXValue;
 

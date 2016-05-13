@@ -33,11 +33,11 @@ NodeParams::NodeParams()
 	SplitClass = 0;
 	SplitVar = 0;
 
-	adGroupSumZ.resize(1024);
+/*	adGroupSumZ.resize(1024);
 	adGroupW.resize(1024);
 	acGroupN.resize(1024);
-	groupMeanAndCat.resize(1024);
-	aiBestCategory.resize(1024);
+	groupMeanAndCat.resize(1024);*/
+	//aiBestCategory.resize(1024);
 }
 
 NodeParams::~NodeParams()
@@ -69,10 +69,10 @@ void NodeParams::ResetSplitProperties(double weightedResiduals, double trainingW
 		ImprovedResiduals = 0.0;
 		SplitClass = variableClasses;
 
-		//std::cout << variableClasses << "\n";
+		/*//std::cout << variableClasses << "\n";
 		std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + variableClasses, 0);
 		std::fill(adGroupW.begin(), adGroupW.begin() + variableClasses, 0);
-		std::fill(acGroupN.begin(), acGroupN.begin() + variableClasses, 0);
+		std::fill(acGroupN.begin(), acGroupN.begin() + variableClasses, 0);*/
 
 }
 

@@ -159,7 +159,7 @@ double CNodeSearch::CalcImprovement
 	for(long iNode=0; iNode < cTerminalNodes; iNode++)
 	{
 		//variableSplitters[iNode].SetToSplit();
-		vecpTermNodes[iNode]->SplitAssign();
+		//vecpTermNodes[iNode]->SplitAssign();
 		if(variableSplitters[iNode].BestImprovement() > dBestNodeImprovement)//vecpTermNodes[iNode]->SplitImprovement())
 		{
 			iBestNode = iNode;
@@ -167,8 +167,8 @@ double CNodeSearch::CalcImprovement
 			//vecpTermNodes[iNode]->childrenParams =  variableSplitters[iNode].GetBestSplit();
 		}
 
-		//if(vecpTermNodes[iNode]->splitAssigned) continue;
-		//vecpTermNodes[iNode]->SplitAssign();
+		if(vecpTermNodes[iNode]->splitAssigned) continue;
+		vecpTermNodes[iNode]->SplitAssign();
 
 	}
 	// Split Node if improvement is non-zero

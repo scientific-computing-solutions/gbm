@@ -16,16 +16,6 @@
 //---------------------
 VarSplitter::VarSplitter(unsigned long minNumObs):bestSplit(), proposedSplit()
 {
-
-	iBestSplitVar = 0;
-
-	dBestSplitValue = 0.0;
-
-	dBestMissingTotalW = 0.0;
-	dCurrentMissingTotalW = 0.0;
-	dBestMissingSumZ = 0.0;
-	dCurrentMissingSumZ = 0.0;
-
 	adGroupSumZ.resize(1024);
 	adGroupW.resize(1024);
 	acGroupN.resize(1024);
@@ -64,12 +54,7 @@ void VarSplitter::IncorporateObs
 	if(ISNA(dX))
 	{
 		proposedSplit.UpdateMissingNode(dWZ, dW);
-		dCurrentMissingSumZ += dWZ;
-		dCurrentMissingTotalW += dW;
-		cCurrentMissingN++;
-		dCurrentRightSumZ -= dWZ;
-		dCurrentRightTotalW -= dW;
-		cCurrentRightN--;
+
 	}
 	else if(cCurrentVarClasses == 0)   // variable is continuous
 	{
@@ -81,47 +66,23 @@ void VarSplitter::IncorporateObs
 		// Evaluate the current split
 		// the newest observation is still in the right child
 		proposedSplit.SplitValue = 0.5*(dLastXValue + dX);
-		dCurrentSplitValue = 0.5*(dLastXValue + dX);
 
 		if((dLastXValue != dX) &&
 			proposedSplit.HasMinNumOfObs(cMinObsInNode) &&
 			proposedSplit.SplitIsCorrMonotonic(lMonotone))
 		{
-			dCurrentImprovement =
-			  Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
-									dCurrentMissingTotalW,
-									dCurrentLeftSumZ,dCurrentRightSumZ,
-									dCurrentMissingSumZ);
 			proposedSplit.NodeGradResiduals();
 			if(proposedSplit.HasMinNumOfObs(cMinObsInNode) &&
 								(proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
 			{
-				iBestSplitVar = iCurrentSplitVar;
-				dBestSplitValue = dCurrentSplitValue;
-				cBestVarClasses = 0;
-
-				dBestLeftSumZ    = dCurrentLeftSumZ;
-				dBestLeftTotalW  = dCurrentLeftTotalW;
-				cBestLeftN       = cCurrentLeftN;
-				dBestRightSumZ   = dCurrentRightSumZ;
-				dBestRightTotalW = dCurrentRightTotalW;
-				cBestRightN      = cCurrentRightN;
-				dBestImprovement = dCurrentImprovement;
-
 				bestSplit = proposedSplit;
+				//std::cout << "Current Best Var: " << iBestSplitVar << " " << "best split var: " << bestSplit.SplitVar << endl;
 			}
 		}
 
 		// now move the new observation to the left
 		// if another observation arrives we will evaluate this
 		proposedSplit.UpdateLeftNode(dWZ, dW);
-		dCurrentLeftSumZ += dWZ;
-		dCurrentLeftTotalW += dW;
-		cCurrentLeftN++;
-		dCurrentRightSumZ -= dWZ;
-		dCurrentRightTotalW -= dW;
-		cCurrentRightN--;
-
 		dLastXValue = dX;
 	}
 	else // variable is categorical, evaluates later
@@ -202,45 +163,25 @@ void VarSplitter::EvaluateCategoricalSplit()
 	    }
 
 	  rsort_with_index(&adGroupMean[0],&aiCurrentCategory[0],cCurrentVarClasses);
-	  //cFiniteMeans = proposedSplit.SetAndReturnNumGroupMeans();
 
 	  // if only one group has a finite mean it will not consider
 	  // might be all are missing so no categories enter here
 	  for(i=0; (cFiniteMeans>1) && ((ULONG)i<cFiniteMeans-1); i++)
 	    {
-	      dCurrentSplitValue = (double)i;
-
-
-	      dCurrentLeftSumZ    += adGroupSumZ[aiCurrentCategory[i]];
-	      dCurrentLeftTotalW  += adGroupW[aiCurrentCategory[i]];
-	      cCurrentLeftN       += acGroupN[aiCurrentCategory[i]];
-	      dCurrentRightSumZ   -= adGroupSumZ[aiCurrentCategory[i]];
-	      dCurrentRightTotalW -= adGroupW[aiCurrentCategory[i]];
-	      cCurrentRightN      -= acGroupN[aiCurrentCategory[i]];
-
-	      dCurrentImprovement =
-		Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
-				   dCurrentMissingTotalW,
-				   dCurrentLeftSumZ,dCurrentRightSumZ,
-				   dCurrentMissingSumZ);
-
+	   
 
 	      proposedSplit.SplitValue = (double) i;
 	      proposedSplit.UpdateLeftNode(adGroupSumZ[aiCurrentCategory[i]], adGroupW[aiCurrentCategory[i]],
 	    		  	  	  	  	  	   acGroupN[aiCurrentCategory[i]]);
-	      //proposedSplit.UpdateLeftNodeWithCat(i);
-	      //proposedSplit.NodeGradResiduals();
-	      proposedSplit.setBestCategory();
-	      proposedSplit.ImprovedResiduals = dCurrentImprovement;
+	      proposedSplit.NodeGradResiduals();
 
 		  if(proposedSplit.HasMinNumOfObs(cMinObsInNode)
 		      		  && (proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
 		{
 
-		  dBestSplitValue = dCurrentSplitValue;
-		  if(iBestSplitVar != iCurrentSplitVar)
+		  if(bestSplit.SplitVar!= proposedSplit.SplitVar)
 		  {
-		      iBestSplitVar = iCurrentSplitVar;
+		      
 		      cBestVarClasses = cCurrentVarClasses;
 		      std::copy(aiCurrentCategory.begin(),
 				aiCurrentCategory.end(),
@@ -248,13 +189,6 @@ void VarSplitter::EvaluateCategoricalSplit()
 		  }
 		  bestSplit = proposedSplit;
 
-		  dBestLeftSumZ      = dCurrentLeftSumZ;
-		  dBestLeftTotalW    = dCurrentLeftTotalW;
-		  cBestLeftN         = cCurrentLeftN;
-		  dBestRightSumZ     = dCurrentRightSumZ;
-		  dBestRightTotalW   = dCurrentRightTotalW;
-		  cBestRightN        = cCurrentRightN;
-		  dBestImprovement   = dCurrentImprovement;
 	        }
 	    }
  /* long i=0;
@@ -292,35 +226,6 @@ void VarSplitter::Set(CNode& nodeToSplit)
 	dInitSumZ = nodeToSplit.dPrediction * nodeToSplit.dTrainW;
 	dInitTotalW = nodeToSplit.dTrainW;
 	cInitN = nodeToSplit.cN;
-
-	dBestLeftSumZ       = 0.0;
-	dBestLeftTotalW     = 0.0;
-	cBestLeftN          = 0;
-	dCurrentLeftSumZ    = 0.0;
-	dCurrentLeftTotalW  = 0.0;
-	cCurrentLeftN       = 0;
-
-	dBestRightSumZ      = nodeToSplit.dPrediction * nodeToSplit.dTrainW;
-	dBestRightTotalW    = nodeToSplit.dTrainW;
-	cBestRightN         = nodeToSplit.cN;
-	dCurrentRightSumZ   = 0.0;
-	dCurrentRightTotalW = nodeToSplit.dTrainW;
-	cCurrentRightN      = nodeToSplit.cN;
-
-	dBestMissingSumZ      = 0.0;
-	dBestMissingTotalW    = 0.0;
-	cBestMissingN         = 0;
-	dCurrentMissingSumZ   = 0.0;
-	dCurrentMissingTotalW = 0.0;
-	cCurrentMissingN      = 0;
-
-	dBestImprovement    = 0.0;
-	iBestSplitVar       = UINT_MAX;
-
-	dCurrentImprovement = 0.0;
-	iCurrentSplitVar    = UINT_MAX;
-	dCurrentSplitValue  = -HUGE_VAL;
-
 
 	bestSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN);
 	proposedSplit.ResetSplitProperties(0, dInitTotalW, cInitN);
@@ -362,21 +267,8 @@ void VarSplitter::ResetForNewVar
   std::fill(adGroupSumZ.begin(), adGroupSumZ.begin() + cCurrentVarClasses, 0);
   std::fill(adGroupW.begin(), adGroupW.begin() + cCurrentVarClasses, 0);
   std::fill(acGroupN.begin(), acGroupN.begin() + cCurrentVarClasses, 0);
-
-  iCurrentSplitVar = iWhichVar;
   this->cCurrentVarClasses = cCurrentVarClasses;
 
-  dCurrentLeftSumZ      = 0.0;
-  dCurrentLeftTotalW    = 0.0;
-  cCurrentLeftN         = 0;
-  dCurrentRightSumZ     = dInitSumZ;
-  dCurrentRightTotalW   = dInitTotalW;
-  cCurrentRightN        = cInitN;
-  dCurrentMissingSumZ   = 0.0;
-  dCurrentMissingTotalW = 0.0;
-  cCurrentMissingN      = 0;
-
-  dCurrentImprovement = 0.0;
 
   proposedSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN,
   		  proposedSplit.SplitValue,	cCurrentVarClasses, iWhichVar);
@@ -385,24 +277,17 @@ void VarSplitter::ResetForNewVar
 
 void VarSplitter::WrapUpCurrentVariable()
 {
-  if(iCurrentSplitVar == iBestSplitVar)
+  if(proposedSplit.SplitVar == bestSplit.SplitVar)
     {
-      if(cCurrentMissingN > 0)
+      if(proposedSplit.MissingNumObs > 0)
         {
     	  bestSplit.MissingWeightResiduals = proposedSplit.MissingWeightResiduals;
 		bestSplit.MissingTotalWeight = proposedSplit.MissingTotalWeight;
 		bestSplit.MissingNumObs = proposedSplit.MissingNumObs;
-	  dBestMissingSumZ   = dCurrentMissingSumZ;
-	  dBestMissingTotalW = dCurrentMissingTotalW;
-	  cBestMissingN      = cCurrentMissingN;
+
         }
       else // DEBUG: consider a weighted average with parent node?
         {
-
-	  dBestMissingSumZ   = dInitSumZ;
-	  dBestMissingTotalW = dInitTotalW;
-	  cBestMissingN      = 0;
-
 		bestSplit.MissingWeightResiduals   = dInitSumZ;
 		bestSplit.MissingTotalWeight = dInitTotalW;
 		bestSplit.MissingNumObs      = 0;
