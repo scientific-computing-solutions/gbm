@@ -94,7 +94,7 @@ public:
 	double BestImprovement() { return dBestImprovement; }
 	void SetupNewNodes(CNode& nodeToSplit)
 	{
-		nodeToSplit.SplitNode(iBestSplitVar,
+/*		nodeToSplit.SplitNode(iBestSplitVar,
 		cBestVarClasses,
 		 dBestSplitValue,
 		dBestLeftSumZ,
@@ -107,7 +107,23 @@ public:
 		dBestMissingTotalW,
 		cBestMissingN,
 		dBestImprovement,
-		aiBestCategory);
+		aiBestCategory);*/
+
+		nodeToSplit.SplitNode(bestSplit.SplitVar,
+				bestSplit.SplitClass,
+				bestSplit.SplitValue,
+				bestSplit.LeftWeightResiduals,
+				bestSplit.LeftTotalWeight,
+				bestSplit.LeftNumObs,
+				bestSplit.RightWeightResiduals,
+				bestSplit.RightTotalWeight,
+				bestSplit.RightNumObs,
+				bestSplit.MissingWeightResiduals,
+				bestSplit.MissingTotalWeight,
+				bestSplit.MissingNumObs,
+				bestSplit.ImprovedResiduals,
+				aiBestCategory
+				);
 	}
 
 	void EvaluateCategoricalSplit();
@@ -167,11 +183,13 @@ private:
 	std::vector<unsigned long> aiBestCategory;
 
 	NodeParams bestSplit, proposedSplit;
+	//void WrapUpSplit();
+
 	/*//---------------------
 	// Private Functions
 	//---------------------
-	void WrapUpSplit();
 	
+
 	//---------------------
 	// Private Variables
 	//---------------------

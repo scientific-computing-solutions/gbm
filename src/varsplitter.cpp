@@ -82,12 +82,10 @@ void VarSplitter::IncorporateObs
 		// the newest observation is still in the right child
 		proposedSplit.SplitValue = 0.5*(dLastXValue + dX);
 		dCurrentSplitValue = 0.5*(dLastXValue + dX);
+
 		if((dLastXValue != dX) &&
-			(cCurrentLeftN >= cMinObsInNode) &&
-			(cCurrentRightN >= cMinObsInNode) &&
-			((lMonotone==0) ||
-			(lMonotone*(dCurrentRightSumZ*dCurrentLeftTotalW -
-						dCurrentLeftSumZ*dCurrentRightTotalW) > 0)))
+			proposedSplit.HasMinNumOfObs(cMinObsInNode) &&
+			proposedSplit.SplitIsCorrMonotonic(lMonotone))
 		{
 			dCurrentImprovement =
 			  Improvement(dCurrentLeftTotalW,dCurrentRightTotalW,
@@ -95,7 +93,8 @@ void VarSplitter::IncorporateObs
 									dCurrentLeftSumZ,dCurrentRightSumZ,
 									dCurrentMissingSumZ);
 			proposedSplit.NodeGradResiduals();
-			if(dCurrentImprovement > dBestImprovement)
+			if(proposedSplit.HasMinNumOfObs(cMinObsInNode) &&
+								(proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
 			{
 				iBestSplitVar = iCurrentSplitVar;
 				dBestSplitValue = dCurrentSplitValue;
@@ -203,12 +202,14 @@ void VarSplitter::EvaluateCategoricalSplit()
 	    }
 
 	  rsort_with_index(&adGroupMean[0],&aiCurrentCategory[0],cCurrentVarClasses);
+	  //cFiniteMeans = proposedSplit.SetAndReturnNumGroupMeans();
 
 	  // if only one group has a finite mean it will not consider
 	  // might be all are missing so no categories enter here
 	  for(i=0; (cFiniteMeans>1) && ((ULONG)i<cFiniteMeans-1); i++)
 	    {
 	      dCurrentSplitValue = (double)i;
+
 
 	      dCurrentLeftSumZ    += adGroupSumZ[aiCurrentCategory[i]];
 	      dCurrentLeftTotalW  += adGroupW[aiCurrentCategory[i]];
@@ -222,19 +223,30 @@ void VarSplitter::EvaluateCategoricalSplit()
 				   dCurrentMissingTotalW,
 				   dCurrentLeftSumZ,dCurrentRightSumZ,
 				   dCurrentMissingSumZ);
-	      if((cCurrentLeftN >= cMinObsInNode) &&
-		 (cCurrentRightN >= cMinObsInNode) &&
-		 (dCurrentImprovement > dBestImprovement))
-	        {
+
+
+	      proposedSplit.SplitValue = (double) i;
+	      proposedSplit.UpdateLeftNode(adGroupSumZ[aiCurrentCategory[i]], adGroupW[aiCurrentCategory[i]],
+	    		  	  	  	  	  	   acGroupN[aiCurrentCategory[i]]);
+	      //proposedSplit.UpdateLeftNodeWithCat(i);
+	      //proposedSplit.NodeGradResiduals();
+	      proposedSplit.setBestCategory();
+	      proposedSplit.ImprovedResiduals = dCurrentImprovement;
+
+		  if(proposedSplit.HasMinNumOfObs(cMinObsInNode)
+		      		  && (proposedSplit.ImprovedResiduals > bestSplit.ImprovedResiduals))
+		{
+
 		  dBestSplitValue = dCurrentSplitValue;
 		  if(iBestSplitVar != iCurrentSplitVar)
-	            {
+		  {
 		      iBestSplitVar = iCurrentSplitVar;
 		      cBestVarClasses = cCurrentVarClasses;
 		      std::copy(aiCurrentCategory.begin(),
 				aiCurrentCategory.end(),
 				aiBestCategory.begin());
-	            }
+		  }
+		  bestSplit = proposedSplit;
 
 		  dBestLeftSumZ      = dCurrentLeftSumZ;
 		  dBestLeftTotalW    = dCurrentLeftTotalW;
@@ -312,10 +324,9 @@ void VarSplitter::Set(CNode& nodeToSplit)
 
 	bestSplit.ResetSplitProperties(dInitSumZ, dInitTotalW, cInitN);
 	proposedSplit.ResetSplitProperties(0, dInitTotalW, cInitN);
-	//this->pThisNode = pThisNode;
-	//this->ppParentPointerToThisNode = ppParentPointerToThisNode;
 
-	/*fIsSplit = false;
+
+	/*
 	InitWeightResiduals = nodeToSplit.dPrediction * nodeToSplit.dTrainW;
 	InitTotalWeight = nodeToSplit.dTrainW;
 	InitNumObs = nodeToSplit.cN;
@@ -378,15 +389,23 @@ void VarSplitter::WrapUpCurrentVariable()
     {
       if(cCurrentMissingN > 0)
         {
+    	  bestSplit.MissingWeightResiduals = proposedSplit.MissingWeightResiduals;
+		bestSplit.MissingTotalWeight = proposedSplit.MissingTotalWeight;
+		bestSplit.MissingNumObs = proposedSplit.MissingNumObs;
 	  dBestMissingSumZ   = dCurrentMissingSumZ;
 	  dBestMissingTotalW = dCurrentMissingTotalW;
 	  cBestMissingN      = cCurrentMissingN;
         }
       else // DEBUG: consider a weighted average with parent node?
         {
+
 	  dBestMissingSumZ   = dInitSumZ;
 	  dBestMissingTotalW = dInitTotalW;
 	  cBestMissingN      = 0;
+
+		bestSplit.MissingWeightResiduals   = dInitSumZ;
+		bestSplit.MissingTotalWeight = dInitTotalW;
+		bestSplit.MissingNumObs      = 0;
         }
     }
 }
@@ -409,6 +428,7 @@ void VarSplitter::WrapUpCurrentVariable()
 //---------------------
 // Private Functions
 //---------------------
+
 /*
 void VarSplitter::WrapUpSplit()
 {
@@ -426,6 +446,7 @@ void VarSplitter::WrapUpSplit()
 
 	}
 }
+
 */
 
 
