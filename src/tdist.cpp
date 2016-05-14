@@ -53,7 +53,7 @@ void CTDist::ComputeWorkingResponse
 
 	for(i=0; i<pData->get_trainSize(); i++)
 	{
-		dU = pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i];
+		dU = pData->y_ptr()[i] - pData->offset_ptr()[i] - adF[i];
 		adZ[i] = (2 * dU) / (mdNu + (dU * dU));
 	}
 
@@ -71,7 +71,7 @@ double CTDist::InitF
 
 	for (long ii = 0; ii < pData->get_trainSize(); ii++)
 	{
-		double dOffset = (pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[ii];
+		double dOffset = pData->offset_ptr()[ii];
 		adArr[ii] = pData->y_ptr()[ii] - dOffset;
 	}
 
@@ -101,7 +101,7 @@ double CTDist::Deviance
 
 	for(i=0; i<cLength; i++)
 	{
-		dU = pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i];
+		dU = pData->y_ptr()[i] - pData->offset_ptr()[i] - adF[i];
 		dL += pData->weight_ptr()[i] * std::log(mdNu + (dU * dU));
 		dW += pData->weight_ptr()[i];
 	}
@@ -154,7 +154,7 @@ void CTDist::FitBestConstant
 	    {
 	      if(pData->GetBagElem(iObs) && (pTreeComps->GetNodeAssign()[iObs] == iNode))
                 {
-		  const double dOffset = pData->offset_ptr(false)[iObs];
+		  const double dOffset = pData->offset_ptr()[iObs];
 		  adArr.push_back(pData->y_ptr()[iObs] - dOffset - adF[iObs]);
 		  adW.push_back(pData->weight_ptr()[iObs]);
                 }
@@ -184,7 +184,7 @@ double CTDist::BagImprovement
     {
         if(!data.GetBagElem(i))
         {
-            const double dF = adF[i] + data.offset_ptr(false)[i];
+            const double dF = adF[i] + data.offset_ptr()[i];
 	    const double dU = (data.y_ptr()[i] - dF);
 	    const double dV = (data.y_ptr()[i] - dF - shrinkage * adFadj[i]) ;
 

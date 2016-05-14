@@ -22,6 +22,7 @@
 #include "configStructs.h"
 #include "gbmexcept.h"
 #include "gbmFunc.h"
+#include <algorithm>
 #include <memory>
 #include <vector>
 #include <Rcpp.h>
@@ -42,15 +43,14 @@ public:
 	 const int cTrain, const int cFeatures, const double fractionInBag) :
     adY(radY), adOffset(radOffset), adWeight(radWeight), adX(radX),
     acVarClasses(racVarClasses), alMonotoneVar(ralMonotoneVar),
-    aiXOrder(raiXOrder), numOfTrainData(cTrain), numOfFeatures(cFeatures),
-    fHasOffset(GBM_FUNC::has_value(adOffset))
+    aiXOrder(raiXOrder), numOfTrainData(cTrain), numOfFeatures(cFeatures)
   {
     
     // If you've no offset set to 0
-    if(!fHasOffset)
-      {
-	std::fill(adOffset.begin(), adOffset.begin() + adX.nrow(), 0.0);
-      }
+    if(!GBM_FUNC::has_value(adOffset)) {
+      Rcpp::NumericVector new_offset(adX.nrow());
+      std::swap(adOffset, new_offset);
+    }
     
     // Set variables
     bagFraction = fractionInBag;
@@ -192,7 +192,6 @@ public:
   long numOfTrainData;
   unsigned long cValid;
   long numOfFeatures;
-  bool fHasOffset;
   mutable bool pointAtTrainSet;
   
   // Bagged  data
@@ -236,22 +235,8 @@ public:
     return dataImpl.yptrs[colIndex];
   }; //const overloaded version
   
-  const double* offset_ptr(bool require=true) const {
-    if (has_offset())
-      {
-	return dataImpl.adOffsetPtr;
-      }
-    else
-      {
-	if (require)
-	  {
-	    throw GBM::failure("You require a genuine offset, and don't have one.");
-	  }
-	else
-	  {
-	    return 0;
-	  }
-      }
+  const double* offset_ptr() const {
+    return dataImpl.adOffsetPtr;
   };
   
   const double* weight_ptr() const {
@@ -268,8 +253,7 @@ public:
   const int* order_ptr() const {
     return dataImpl.aiXOrder.begin();
   };
-  
-  bool has_offset() const;
+
   double x_value(const int row, const int col) const { 
     return dataImpl.adX(row, col);
   }; // retrieve predictor value

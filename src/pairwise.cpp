@@ -647,7 +647,7 @@ void CPairwise::ComputeWorkingResponse
 	    const int cNumItems = iItemEnd - iItemStart;
 	    
 	    // If offset given, add up current scores
-	    const double* adFPlusOffset = OffsetVector(adF, pData->offset_ptr(false), iItemStart, iItemEnd, vecdFPlusOffset);
+	    const double* adFPlusOffset = OffsetVector(adF, pData->offset_ptr(), iItemStart, iItemEnd, vecdFPlusOffset);
 	    
 	    // Accumulate gradients
 	    // TODO: Implement better way to ensure casting robust to overflow
@@ -888,7 +888,7 @@ void CPairwise::Initialize
 	}
   pirm->Init(ulMaxGroup, cMaxItemsPerGroup, cRankCutoff);
 #ifdef NOISY_DEBUG
-  Rprintf("Initialization: instances=%ld, groups=%u, max items per group=%u, rank cutoff=%u, offset specified: %d\n", cLength, (unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff, (pData->offset_ptr(false) != NULL));
+  Rprintf("Initialization: instances=%ld, groups=%u, max items per group=%u, rank cutoff=%u, offset specified: %d\n", cLength, (unsigned long)dMaxGroup, cMaxItemsPerGroup, cRankCutoff, (pData->offset_ptr() != NULL));
 #endif
 }
 
@@ -960,7 +960,7 @@ double CPairwise::Deviance
             // Rank items by current score
 
             // If offset given, add up current scores
-            const double* adFPlusOffset = OffsetVector(adF, pData->offset_ptr(false), iItemStart, iItemEnd, vecdFPlusOffset);
+            const double* adFPlusOffset = OffsetVector(adF, pData->offset_ptr(), iItemStart, iItemEnd, vecdFPlusOffset);
 
             ranker.SetGroupScores(adFPlusOffset, cNumItems);
             ranker.Rank();
@@ -1099,7 +1099,7 @@ double CPairwise::BagImprovement
             if (dMaxScore > 0.0)
             {
                 // If offset given, add up current scores
-                const double* adFPlusOffset = OffsetVector(adF, data.offset_ptr(false), iItemStart, iItemEnd, vecdFPlusOffset);
+                const double* adFPlusOffset = OffsetVector(adF, data.offset_ptr(), iItemStart, iItemEnd, vecdFPlusOffset);
 
                 // Compute score according to old score, adF
                 ranker.SetGroupScores(adFPlusOffset, cNumItems);

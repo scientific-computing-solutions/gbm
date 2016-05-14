@@ -46,7 +46,7 @@ void CPoisson::ComputeWorkingResponse
     // compute working response
     for(i=0; i < pData->get_trainSize(); i++)
     {
-        dF = adF[i] +  pData->offset_ptr(false)[i];
+        dF = adF[i] +  pData->offset_ptr()[i];
         adZ[i] = pData->y_ptr()[i] - std::exp(dF);
     }
 }
@@ -66,7 +66,7 @@ double CPoisson::InitF
 	for(i=0; i<pData->get_trainSize(); i++)
 	{
 		dSum += pData->weight_ptr()[i]*pData->y_ptr()[i];
-		dDenom += pData->weight_ptr()[i]*std::exp(pData->offset_ptr(false)[i]);
+		dDenom += pData->weight_ptr()[i]*std::exp(pData->offset_ptr()[i]);
 	}
 
     return std::log(dSum/dDenom);
@@ -95,8 +95,8 @@ double CPoisson::Deviance
 
 	for(i=0; i<cLength; i++)
 	{
-		dL += pData->weight_ptr()[i]*(pData->y_ptr()[i]*(pData->offset_ptr(false)[i]+adF[i]) -
-						   std::exp(pData->offset_ptr(false)[i]+adF[i]));
+		dL += pData->weight_ptr()[i]*(pData->y_ptr()[i]*(pData->offset_ptr()[i]+adF[i]) -
+						   std::exp(pData->offset_ptr()[i]+adF[i]));
 		dW += pData->weight_ptr()[i];
    }
 
@@ -142,7 +142,7 @@ void CPoisson::FitBestConstant
 		{
 			vecdNum[pTreeComps->GetNodeAssign()[iObs]] += pData->weight_ptr()[iObs]*pData->y_ptr()[iObs];
 			vecdDen[pTreeComps->GetNodeAssign()[iObs]] +=
-				pData->weight_ptr()[iObs]*std::exp(pData->offset_ptr(false)[iObs]+adF[iObs]);
+				pData->weight_ptr()[iObs]*std::exp(pData->offset_ptr()[iObs]+adF[iObs]);
 		}
 	}
 
@@ -196,7 +196,7 @@ double CPoisson::BagImprovement
     {
         if(!data.GetBagElem(i))
         {
-            dF = adF[i] + data.offset_ptr(false)[i];
+            dF = adF[i] + data.offset_ptr()[i];
 
             dReturnValue += data.weight_ptr()[i]*
                             (data.y_ptr()[i]*shrinkage*adFadj[i] -

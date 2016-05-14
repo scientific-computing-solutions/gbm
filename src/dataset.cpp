@@ -78,20 +78,6 @@ CDataset::~CDataset()
 
 
 //-----------------------------------
-// Function: has_offset
-//
-// Returns: bool indicating if the function has an offset.
-//
-// Parameters: none
-//
-//-----------------------------------
-bool CDataset::has_offset() const
-{
-	return dataImpl.fHasOffset;
-}
-
-
-//-----------------------------------
 // Function: get_trainSize
 //
 // Returns: long - the number of training instances

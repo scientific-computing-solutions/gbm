@@ -48,7 +48,7 @@ void CQuantile::ComputeWorkingResponse
     unsigned long i = 0;
 	for(i=0; i<pData->get_trainSize(); i++)
 	{
-		adZ[i] = (pData->y_ptr()[i] > adF[i]+pData->offset_ptr(false)[i]) ? dAlpha : -(1.0-dAlpha);
+		adZ[i] = (pData->y_ptr()[i] > adF[i]+pData->offset_ptr()[i]) ? dAlpha : -(1.0-dAlpha);
 	}
 
 }
@@ -63,7 +63,7 @@ double CQuantile::InitF
     vecd.resize(pData->get_trainSize());
     for(long i=0; i< pData->get_trainSize(); i++)
     {
-        dOffset = pData->offset_ptr(false)[i];
+        dOffset = pData->offset_ptr()[i];
         vecd[i] = pData->y_ptr()[i] - dOffset;
     }
 
@@ -93,13 +93,13 @@ double CQuantile::Deviance
 
 	for(i=0; i<cLength; i++)
 	{
-		if(pData->y_ptr()[i] > adF[i] + pData->offset_ptr(false)[i])
+		if(pData->y_ptr()[i] > adF[i] + pData->offset_ptr()[i])
 		{
-			dL += pData->weight_ptr()[i]*dAlpha*(pData->y_ptr()[i] - adF[i]-pData->offset_ptr(false)[i]);
+			dL += pData->weight_ptr()[i]*dAlpha*(pData->y_ptr()[i] - adF[i]-pData->offset_ptr()[i]);
 		}
 		else
 		{
-			dL += pData->weight_ptr()[i]*(1.0-dAlpha)*(adF[i]+pData->offset_ptr(false)[i] - pData->y_ptr()[i]);
+			dL += pData->weight_ptr()[i]*(1.0-dAlpha)*(adF[i]+pData->offset_ptr()[i] - pData->y_ptr()[i]);
 		}
 		dW += pData->weight_ptr()[i];
 	}
@@ -149,7 +149,7 @@ void CQuantile::FitBestConstant
             {
 	      if(pData->GetBagElem(iObs) && (pTreeComps->GetNodeAssign()[iObs] == iNode))
                 {
-		  dOffset = (pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[iObs];
+		  dOffset = pData->offset_ptr()[iObs];
 		  
 		  vecd[iVecd] = pData->y_ptr()[iObs] - dOffset - adF[iObs];
 		  adW2[iVecd] = pData->weight_ptr()[iObs];
@@ -182,7 +182,7 @@ double CQuantile::BagImprovement
     {
         if(!data.GetBagElem(i))
         {
-            dF = adF[i] + data.offset_ptr(false)[i];
+            dF = adF[i] + data.offset_ptr()[i];
 
             if(data.y_ptr()[i] > dF)
             {

@@ -63,7 +63,7 @@ void CTweedie::ComputeWorkingResponse
 
   for(i=0; i<pData->get_trainSize(); i++)
     {
-      dF = adF[i] + pData->offset_ptr(false)[i];
+      dF = adF[i] + pData->offset_ptr()[i];
       adZ[i] = pData->y_ptr()[i]*std::exp(dF*(1.0-dPower)) - exp(dF*(2.0-dPower));
     }
 }
@@ -85,8 +85,8 @@ double CTweedie::InitF
 
 	for(i=0; i<pData->get_trainSize(); i++)
 	{
-		dSum += pData->weight_ptr()[i]*pData->y_ptr()[i]*std::exp(pData->offset_ptr(false)[i]*(1.0-dPower));
-		dTotalWeight += pData->weight_ptr()[i]*std::exp(pData->offset_ptr(false)[i]*(2.0-dPower));
+		dSum += pData->weight_ptr()[i]*pData->y_ptr()[i]*std::exp(pData->offset_ptr()[i]*(1.0-dPower));
+		dTotalWeight += pData->weight_ptr()[i]*std::exp(pData->offset_ptr()[i]*(2.0-dPower));
 	}
 
     
@@ -122,7 +122,7 @@ double CTweedie::Deviance
 
   for(i=0; i<cLength; i++)
     {
-      dF = adF[i] +  pData->offset_ptr(false)[i];
+      dF = adF[i] +  pData->offset_ptr()[i];
       dL += pData->weight_ptr()[i]*(pow(pData->y_ptr()[i],2.0-dPower)/((1.0-dPower)*(2.0-dPower)) -
 			 pData->y_ptr()[i]*std::exp(dF*(1.0-dPower))/(1.0-dPower) + exp(dF*(2.0-dPower))/(2.0-dPower) );
       dW += pData->weight_ptr()[i];
@@ -173,7 +173,7 @@ void CTweedie::FitBestConstant
     {
       if(pData->GetBagElem(iObs))
 	{
-	  dF = adF[iObs] +  pData->offset_ptr(false)[iObs];
+	  dF = adF[iObs] +  pData->offset_ptr()[iObs];
 	  vecdNum[pTreeComps->GetNodeAssign()[iObs]] += pData->weight_ptr()[iObs]*pData->y_ptr()[iObs]*std::exp(dF*(1.0-dPower));
 	  vecdDen[pTreeComps->GetNodeAssign()[iObs]] += pData->weight_ptr()[iObs]*std::exp(dF*(2.0-dPower));
 
@@ -229,7 +229,7 @@ double CTweedie::BagImprovement
 	{
 		if(!data.GetBagElem(i))
 		{
-			dF = adF[i] + data.offset_ptr(false)[i];
+			dF = adF[i] + data.offset_ptr()[i];
 
 			dReturnValue += data.weight_ptr()[i]*( std::exp(dF*(1.0-dPower))*data.y_ptr()[i]/(1.0-dPower)*
 				(std::exp(shrinkage*adFadj[i]*(1.0-dPower))-1.0) +

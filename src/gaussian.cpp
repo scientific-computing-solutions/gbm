@@ -48,7 +48,7 @@ void CGaussian::ComputeWorkingResponse
 
 	for(i=0; i<pData->get_trainSize(); i++)
 	{
-		adZ[i] = pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i];
+		adZ[i] = pData->y_ptr()[i] - pData->offset_ptr()[i] - adF[i];
 	}
 
 }
@@ -66,7 +66,7 @@ double CGaussian::InitF
 
 	for(i=0; i<pData->get_trainSize(); i++)
 	{
-		dSum += pData->weight_ptr()[i]*(pData->y_ptr()[i] - pData->offset_ptr(false)[i]);
+		dSum += pData->weight_ptr()[i]*(pData->y_ptr()[i] - pData->offset_ptr()[i]);
 		dTotalWeight += pData->weight_ptr()[i];
 	}
 
@@ -97,8 +97,8 @@ double CGaussian::Deviance
 
 	for(i=0; i<cLength; i++)
 	{
-		dL += pData->weight_ptr()[i]*(pData->y_ptr()[i]-pData->offset_ptr(false)[i]-adF[i])*
-						  (pData->y_ptr()[i]-pData->offset_ptr(false)[i]-adF[i]);
+		dL += pData->weight_ptr()[i]*(pData->y_ptr()[i]-pData->offset_ptr()[i]-adF[i])*
+						  (pData->y_ptr()[i]-pData->offset_ptr()[i]-adF[i]);
 		dW += pData->weight_ptr()[i];
 	}
 
@@ -153,7 +153,7 @@ double CGaussian::BagImprovement
     {
         if(!data.GetBagElem(i))
         {
-            dF = adF[i] + data.offset_ptr(false)[i];
+            dF = adF[i] + data.offset_ptr()[i];
 
             dReturnValue += data.weight_ptr()[i]*shrinkage*adFadj[i]*
                             (2.0*(data.y_ptr()[i]-dF) - shrinkage*adFadj[i]);

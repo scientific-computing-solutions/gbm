@@ -120,7 +120,7 @@ public:
 		{
 			if(pData->GetBagElem(i) && (pTreeComps->GetTermNodes()[pTreeComps->GetNodeAssign()[i]]->cN >= pTreeComps->GetMinNodeObs()))
 			{
-				dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
+				dF = adF[i] + ((pData->offset_ptr()==NULL) ? 0.0 : pData->offset_ptr()[i]);
 				vecdP[veciNode2K[pTreeComps->GetNodeAssign()[i]]] += pData->weight_ptr()[i]*std::exp(dF);
 				dRiskTot += pData->weight_ptr()[i]*std::exp(dF);
 
@@ -266,7 +266,7 @@ private:
 	    nrisk =0;   /* number at risk */
 	    esum =0;  /*cumulative eta, used for rescaling */
 	    loglik =0;
-	    center = eta[coxPh->EndTimeIndices()[0]] + pData->offset_ptr(false)[coxPh->EndTimeIndices()[0]];
+	    center = eta[coxPh->EndTimeIndices()[0]] + pData->offset_ptr()[coxPh->EndTimeIndices()[0]];
 		//throw GBM::failure("Test CoxPH");
 
 	    for (person=0; person<n; )
@@ -279,10 +279,10 @@ private:
 	    		if (coxPh->StatusVec()[p2] ==0)
 				{
 					/* add the subject to the risk set */
-					resid[p2] = exp(eta[p2] + pData->offset_ptr(false)[p2] - center) * cumhaz;
+					resid[p2] = exp(eta[p2] + pData->offset_ptr()[p2] - center) * cumhaz;
 					nrisk++;
-					denom  += pData->weight_ptr()[p2]* exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
-					esum += eta[p2] + pData->offset_ptr(false)[p2];
+					denom  += pData->weight_ptr()[p2]* exp(eta[p2] + pData->offset_ptr()[p2] - center);
+					esum += eta[p2] + pData->offset_ptr()[p2];
 					person++;
 				}
 				else
@@ -304,14 +304,14 @@ private:
 							if (pData->y_ptr()[p2]  < dtime) break;  /* only tied times */
 
 							nrisk++;
-							denom += pData->weight_ptr()[p2] * exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
-							esum += eta[p2] + pData->offset_ptr(false)[p2];
+							denom += pData->weight_ptr()[p2] * exp(eta[p2] + pData->offset_ptr()[p2] - center);
+							esum += eta[p2] + pData->offset_ptr()[p2];
 							if (coxPh->StatusVec()[p2] ==1)
 							{
 								ndeath ++;
 								deathwt += pData->weight_ptr()[p2];
-								d_denom += pData->weight_ptr()[p2] * exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
-								loglik  += pData->weight_ptr()[p2]*(eta[p2] + pData->offset_ptr(false)[p2] - center);
+								d_denom += pData->weight_ptr()[p2] * exp(eta[p2] + pData->offset_ptr()[p2] - center);
+								loglik  += pData->weight_ptr()[p2]*(eta[p2] + pData->offset_ptr()[p2] - center);
 							 }
 						}
 					}
@@ -352,8 +352,8 @@ private:
 						if(skipBag || (pData->GetBagElem(person)==checkInBag))
 						{
 							p2 = coxPh->EndTimeIndices()[person];
-							if (coxPh->StatusVec()[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
-							else resid[p2] = cumhaz * exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
+							if (coxPh->StatusVec()[p2] ==1) resid[p2] = 1 + temp*exp(eta[p2] + pData->offset_ptr()[p2] - center);
+							else resid[p2] = cumhaz * exp(eta[p2] + pData->offset_ptr()[p2] - center);
 						}
 
 					}
@@ -377,7 +377,7 @@ private:
 						if(skipBag || (pData->GetBagElem(indx1)==checkInBag))
 						{
 							p2 = coxPh->EndTimeIndices()[indx1];
-							resid[p2] -= cumhaz * exp(eta[p2] + pData->offset_ptr(false)[p2] - center);
+							resid[p2] -= cumhaz * exp(eta[p2] + pData->offset_ptr()[p2] - center);
 						}
 					}
 					cumhaz =0;

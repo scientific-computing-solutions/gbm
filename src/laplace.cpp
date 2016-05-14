@@ -42,7 +42,7 @@ void CLaplace::ComputeWorkingResponse
     unsigned long i = 0;
 	for(i=0; i<pData->get_trainSize(); i++)
 	{
-		adZ[i] = (pData->y_ptr()[i] - pData->offset_ptr(false)[i] - adF[i]) > 0.0 ? 1.0 : -1.0;
+		adZ[i] = (pData->y_ptr()[i] - pData->offset_ptr()[i] - adF[i]) > 0.0 ? 1.0 : -1.0;
 	}
 
 }
@@ -61,7 +61,7 @@ double CLaplace::InitF
   
   for (ii = 0; ii < pData->get_trainSize(); ii++)
     {
-      dOffset = pData->offset_ptr(false)[ii];
+      dOffset = pData->offset_ptr()[ii];
       adArr[ii] = pData->y_ptr()[ii] - dOffset;
     }
   
@@ -87,7 +87,7 @@ double CLaplace::Deviance
     	cLength = pData->GetValidSize();
     }
 
-    if(pData->offset_ptr(false) == NULL)
+    if(pData->offset_ptr() == NULL)
     {
         for(i=0; i<cLength; i++)
         {
@@ -99,7 +99,7 @@ double CLaplace::Deviance
     {
         for(i=0; i<cLength; i++)
         {
-            dL += pData->weight_ptr()[i]*fabs(pData->y_ptr()[i]-pData->offset_ptr(false)[i]-adF[i]);
+            dL += pData->weight_ptr()[i]*fabs(pData->y_ptr()[i]-pData->offset_ptr()[i]-adF[i]);
             dW += pData->weight_ptr()[i];
         }
     }
@@ -152,7 +152,7 @@ void CLaplace::FitBestConstant
             {
 	      if(pData->GetBagElem(iObs) && (pTreeComps->GetNodeAssign()[iObs] == iNode))
                 {
-		  dOffset =  pData->offset_ptr(false)[iObs];
+		  dOffset =  pData->offset_ptr()[iObs];
 		  adArr[iVecd] = pData->y_ptr()[iObs] - dOffset - adF[iObs];
 		  adW2[iVecd] = pData->weight_ptr()[iObs];
 		  iVecd++;
@@ -186,7 +186,7 @@ double CLaplace::BagImprovement
     {
         if(!data.GetBagElem(i))
         {
-            dF = adF[i] + data.offset_ptr(false)[i];
+            dF = adF[i] + data.offset_ptr()[i];
 
             dReturnValue +=
                 data.weight_ptr()[i]*(fabs(data.y_ptr()[i]-dF) - fabs(data.y_ptr()[i]-dF-shrinkage*adFadj[i]));

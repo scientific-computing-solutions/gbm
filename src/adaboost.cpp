@@ -42,7 +42,7 @@ void CAdaBoost::ComputeWorkingResponse
 
 	for(long i=0; i<pData->get_trainSize(); i++)
 	{
-		adZ[i] = -(2*pData->y_ptr()[i]-1) * std::exp(-(2*pData->y_ptr()[i]-1)*(pData->offset_ptr(false)[i]+adF[i]));
+		adZ[i] = -(2*pData->y_ptr()[i]-1) * std::exp(-(2*pData->y_ptr()[i]-1)*(pData->offset_ptr()[i]+adF[i]));
 	}
 
 
@@ -63,11 +63,11 @@ double CAdaBoost::InitF
 	{
 		if(pData->y_ptr()[i]==1.0)
 		{
-			dNum += pData->weight_ptr()[i] * std::exp(-pData->offset_ptr(false)[i]);
+			dNum += pData->weight_ptr()[i] * std::exp(-pData->offset_ptr()[i]);
 		}
 		else
 		{
-			dDen += pData->weight_ptr()[i] * std::exp(pData->offset_ptr(false)[i]);
+			dDen += pData->weight_ptr()[i] * std::exp(pData->offset_ptr()[i]);
 		}
 	}
 
@@ -99,7 +99,7 @@ double CAdaBoost::Deviance
 
 	for(i=0; i!=cLength; i++)
 	{
-		dL += pData->weight_ptr()[i] * std::exp(-(2*pData->y_ptr()[i]-1)*(pData->offset_ptr(false)[i]+adF[i]));
+		dL += pData->weight_ptr()[i] * std::exp(-(2*pData->y_ptr()[i]-1)*(pData->offset_ptr()[i]+adF[i]));
 		dW += pData->weight_ptr()[i];
 	}
 
@@ -146,7 +146,7 @@ void CAdaBoost::FitBestConstant
     {
       if(pData->GetBagElem(iObs))
         {
-	  dF = adF[iObs] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[iObs]);
+	  dF = adF[iObs] + pData->offset_ptr()[iObs];
 	  vecdNum[pTreeComps->GetNodeAssign()[iObs]] +=
 	    pData->weight_ptr()[iObs]*(2*pData->y_ptr()[iObs]-1)*std::exp(-(2*pData->y_ptr()[iObs]-1)*dF);
 	  vecdDen[pTreeComps->GetNodeAssign()[iObs]] +=
@@ -190,7 +190,7 @@ double CAdaBoost::BagImprovement
     {
         if(!data.GetBag()[i])
         {
-            dF = adF[i] + data.offset_ptr(false)[i];
+            dF = adF[i] + data.offset_ptr()[i];
 
             dReturnValue += data.weight_ptr()[i]*
                 (std::exp(-(2*data.y_ptr()[i]-1)*dF) -

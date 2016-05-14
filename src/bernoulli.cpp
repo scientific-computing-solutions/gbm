@@ -46,7 +46,7 @@ void CBernoulli::ComputeWorkingResponse
 
   for(unsigned long i=0; i<pData->get_trainSize(); i++)
   {
-    dF = adF[i] +  pData->offset_ptr(false)[i];
+    dF = adF[i] +  pData->offset_ptr()[i];
     dProb = 1.0/(1.0+std::exp(-dF));
 
     adZ[i] = pData->y_ptr()[i] - dProb;
@@ -78,7 +78,7 @@ double CBernoulli::InitF
       double dDen=0.0;
       for(unsigned long i=0; i<pData->get_trainSize(); i++)
 	{
-	  const double dTemp = 1.0/(1.0+std::exp(-(pData->offset_ptr(false)[i] + dInitF)));
+	  const double dTemp = 1.0/(1.0+std::exp(-(pData->offset_ptr()[i] + dInitF)));
 	  dNum += pData->weight_ptr()[i]*(pData->y_ptr()[i]-dTemp);
 	  dDen += pData->weight_ptr()[i]*dTemp*(1.0-dTemp);
 	}
@@ -113,7 +113,7 @@ double CBernoulli::Deviance
 
 	for(i=0; i!=cLength; i++)
 	{
-	 dF = adF[i] + pData->offset_ptr(false)[i];
+	 dF = adF[i] + pData->offset_ptr()[i];
 	 dL += pData->weight_ptr()[i]*(pData->y_ptr()[i]*dF - std::log(1.0+std::exp(dF)));
 	 dW += pData->weight_ptr()[i];
 	}
@@ -219,7 +219,7 @@ double CBernoulli::BagImprovement
     {
         if(!data.GetBagElem(i))
         {
-            dF = adF[i] +  data.offset_ptr(false)[i];
+            dF = adF[i] +  data.offset_ptr()[i];
 
             if(data.y_ptr()[i]==1.0)
             {

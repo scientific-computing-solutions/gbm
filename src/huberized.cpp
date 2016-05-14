@@ -44,7 +44,7 @@ void CHuberized::ComputeWorkingResponse
 
    for(i=0; i<pData->get_trainSize(); i++)
    {
-      dF = adF[i] + pData->offset_ptr(false)[i];
+      dF = adF[i] + pData->offset_ptr()[i];
       if( (2*pData->y_ptr()[i]-1)*dF < -1)
       {
          adZ[i] = -4 * (2*pData->y_ptr()[i]-1);
@@ -107,7 +107,7 @@ double CHuberized::Deviance
 
   for(i=0; i<cLength; i++)
   {
-	 dF = pData->offset_ptr(false)[i]+adF[i];
+	 dF = pData->offset_ptr()[i]+adF[i];
 	 if ( (2*pData->y_ptr()[i]-1)*adF[i] < -1 )
 	 {
 		dL += -pData->weight_ptr()[i]*4*(2*pData->y_ptr()[i]-1)*dF;
@@ -166,7 +166,7 @@ void CHuberized::FitBestConstant
     {
       if(pData->GetBagElem(iObs))
         {
-	  dF = adF[iObs] +  pData->offset_ptr(false)[iObs];
+	  dF = adF[iObs] +  pData->offset_ptr()[iObs];
 	  if( (2*pData->y_ptr()[iObs]-1)*adF[iObs] < -1 )
 	  {
 	    vecdNum[pTreeComps->GetNodeAssign()[iObs]] +=
@@ -221,7 +221,7 @@ double CHuberized::BagImprovement
     {
         if(!data.GetBagElem(i))
         {
-            dF = adF[i] +  data.offset_ptr(false)[i];
+            dF = adF[i] +  data.offset_ptr()[i];
 
             if( (2*data.y_ptr()[i]-1)*dF < -1 ){
                dReturnValue += data.weight_ptr()[i]*

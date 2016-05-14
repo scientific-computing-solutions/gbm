@@ -55,7 +55,7 @@ public:
 		{
 			if(pData->GetBagElem(i))
 			{
-				dF = adF[i] +  pData->offset_ptr(false)[i];
+				dF = adF[i] +  pData->offset_ptr()[i];
 				dRiskTot += pData->weight_ptr()[i]*std::exp(dF);
 				vecdRiskTot[i] = dRiskTot;
 			}
@@ -69,7 +69,7 @@ public:
 				{
 					dTot += pData->weight_ptr()[i]/vecdRiskTot[i];
 				}
-				dF = adF[i] +  pData->offset_ptr(false)[i];
+				dF = adF[i] +  pData->offset_ptr()[i];
 				adZ[i] = coxPh->StatusVec()[i] - std::exp(dF)*dTot;
 			}
 		}
@@ -139,7 +139,7 @@ public:
 	    {
 	        if(pData->GetBagElem(i) && (pTreeComps->GetTermNodes()[pTreeComps->GetNodeAssign()[i]]->cN >= pTreeComps->GetMinNodeObs()))
 	        {
-	            dF = adF[i] + ((pData->offset_ptr(false)==NULL) ? 0.0 : pData->offset_ptr(false)[i]);
+	            dF = adF[i] + pData->offset_ptr()[i];
 	            vecdP[veciNode2K[pTreeComps->GetNodeAssign()[i]]] += pData->weight_ptr()[i]*std::exp(dF);
 	            dRiskTot += pData->weight_ptr()[i]*std::exp(dF);
 
@@ -223,7 +223,7 @@ public:
 	    dTotalAtRisk = 0.0;
 	    for(i=0; i!=cLength; i++)
 	    {
-	        dF = adF[i] +  pData->offset_ptr(false)[i];
+	        dF = adF[i] +  pData->offset_ptr()[i];
 	        dTotalAtRisk += pData->weight_ptr()[i]*std::exp(dF);
 	        if(coxPh->StatusVec()[i]==1.0)
 	        {
