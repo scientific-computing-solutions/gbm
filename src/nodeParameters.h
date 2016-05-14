@@ -14,6 +14,43 @@
 //------------------------------
 #include <Rcpp.h>
 
+struct NodeDef {
+  NodeDef() : numObs(0), weightResid(0), totalWeight(0) {};
+
+  NodeDef(double weightResid, double totalWeight, long numObs) :
+    weightResid(weightResid), totalWeight(totalWeight), numObs(numObs) {};
+  
+  void clear() {
+    numObs = 0;
+    weightResid = totalWeight = 0;
+  };
+
+  void increment(const double pred, const double trainWeight, long num) {
+    weightResid += pred;
+    totalWeight += trainWeight;
+    numObs += num;
+  };
+
+  double prediction() const {
+    return weightResid / totalWeight;
+  };
+  
+  double unweightedGradient(const NodeDef& other) const {
+    const double tmp = prediction() - other.prediction();
+    return totalWeight * other.totalWeight * tmp * tmp;
+  };
+
+  bool hasMinObs(long minObsInNode) const {
+    return (numObs >= minObsInNode);
+  }
+
+  
+  
+  long numObs;
+  double weightResid;
+  double totalWeight;
+};
+
 //------------------------------
 // Class Definition
 //------------------------------
@@ -28,13 +65,13 @@ public:
 	//---------------------
 	// Public destructor
 	//---------------------
-    ~NodeParams();
+        ~NodeParams();
 
 	//---------------------
 	// Public Functions
 	//---------------------
 	void ResetSplitProperties(double weightedResiduals, double trainingWeight, unsigned long numObs,
-							 double splitValue = -HUGE_VAL, unsigned long variableClasses=1, unsigned long splitVar = UINT_MAX);
+				  double splitValue = -HUGE_VAL, unsigned long variableClasses=1, unsigned long splitVar = UINT_MAX);
 	void UpdateMissingNode(double predIncrement, double trainWIncrement, long numIncrement = 1);
 	void UpdateLeftNode(double predIncrement, double trainWIncrement, long numIncrement = 1);
 	void UpdateLeftNodeWithCat(long catIndex);
@@ -56,53 +93,35 @@ public:
 			count++;
 		}
 	};
-	NodeParams& operator=(const NodeParams rhs)
+	NodeParams& operator=(const NodeParams& rhs)
 	{
-		RightWeightResiduals = rhs.RightWeightResiduals;
-		RightTotalWeight = rhs.RightTotalWeight;
-		RightNumObs = rhs.RightNumObs;
+	  right = rhs.right;
+	  left = rhs.left;
+	  missing = rhs.missing;
 
-		LeftWeightResiduals = rhs.LeftWeightResiduals;
-		LeftTotalWeight = rhs.LeftTotalWeight;
-		LeftNumObs = rhs.LeftNumObs;
-
-		MissingWeightResiduals = rhs.MissingWeightResiduals;
-		MissingTotalWeight = rhs.MissingTotalWeight;
-		MissingNumObs = rhs.MissingNumObs;
-
-		SplitValue = rhs.SplitValue;
-		SplitVar = rhs.SplitVar;
-		SplitClass = rhs.SplitClass;
-		ImprovedResiduals = rhs.ImprovedResiduals;
-
-		// Copy best category
-		aiBestCategory.resize(rhs.aiBestCategory.size(), 0);
-		std::copy(rhs.aiBestCategory.begin(), rhs.aiBestCategory.end(), aiBestCategory.begin());
-		return *this;
+	  SplitValue = rhs.SplitValue;
+	  SplitVar = rhs.SplitVar;
+	  SplitClass = rhs.SplitClass;
+	  ImprovedResiduals = rhs.ImprovedResiduals;
+	  
+	  // Copy best category
+	  aiBestCategory = rhs.aiBestCategory;
+	  return *this;
 	}
+  bool hasMissing() const {
+    return missing.numObs >= 0;
+  };
 	//---------------------
 	// Public Variables
 	//---------------------
 	// Left Node Definition
-	double LeftWeightResiduals;
-	double LeftTotalWeight;
-	long LeftNumObs;
-
-	// Right Node Definition
-	double RightWeightResiduals;
-	double RightTotalWeight;
-	long RightNumObs;
-
-	// Missing Node Definition
-	double MissingWeightResiduals;
-	double MissingTotalWeight;
-	long MissingNumObs;
+        NodeDef left, right, missing;
 
 	// Splitting values
 	double SplitValue; // Continuous Split Value
 	unsigned long SplitVar; // Which feature to split on
 	unsigned long SplitClass; // Categorical Split Value
-    std::vector<int> aiBestCategory; // Vector of levels ordering
+        std::vector<int> aiBestCategory; // Vector of levels ordering
 	double ImprovedResiduals;
 
 	// Splitting arrays for Categorical variable
