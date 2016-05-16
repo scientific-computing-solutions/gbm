@@ -216,21 +216,6 @@ void CDataset::SetBagElem(long index, bool value)
 }
 
 //-----------------------------------
-// Function: GetBag
-//
-// Returns: bag
-//
-// Description: getter for bag
-//
-// Parameters: none
-//
-//-----------------------------------
-/*bag CDataset::GetBag()
-{
-	return dataImpl.afInBag;
-}*/
-
-//-----------------------------------
 // Function: FillRemainderOfBag
 //
 // Returns: void
