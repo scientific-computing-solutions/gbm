@@ -216,7 +216,7 @@ public:
   //----------------------
   // Public Constructors
   //----------------------
-  CDataset(DataDistParams dataParams);
+  CDataset(const DataDistParams& dataParams);
   
   //---------------------
   // Public destructor
@@ -226,10 +226,12 @@ public:
   //---------------------
   // Public Functions
   //---------------------
-  int nrow() const {
+  int nrow() const
+  {
     return dataImpl.adX.nrow();
   };
-  int ncol() const {
+  int ncol() const
+  {
     return dataImpl.adX.ncol();
   };
   
