@@ -25,7 +25,7 @@ struct NodeDef
   NodeDef() : numObs(0), weightResid(0), totalWeight(0) {};
   
   NodeDef(double weightResid, double totalWeight, long numObs) :
-    weightResid(weightResid), totalWeight(totalWeight), numObs(numObs) {};
+  numObs(numObs), weightResid(weightResid), totalWeight(totalWeight) {};
   
   //---------------------
   // Public Functions
