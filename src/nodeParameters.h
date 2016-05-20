@@ -51,8 +51,13 @@ struct NodeDef
   
   double unweightedGradient(const NodeDef& other) const
   {
-	const double tmp = prediction() - other.prediction();
-	return totalWeight * other.totalWeight * tmp * tmp;
+	return weightResid * other.totalWeight - other.weightResid * totalWeight;
+  };
+
+  double varianceReduction(const NodeDef& other) const
+  {
+	const double predictionDiff = prediction() - other.prediction();
+    return totalWeight* other.totalWeight*predictionDiff*predictionDiff;
   };
 
   bool hasMinObs(long minObsInNode) const
@@ -134,16 +139,16 @@ public:
 	  // Only need to look at left and right
 	  if(!missing.hasObs())
 	    {
-	      ImprovedResiduals = left.unweightedGradient(right) /
+	      ImprovedResiduals = left.varianceReduction(right) /
 		left.weightSum(right);
 	    }
 	  else
 	    {
 	      // Grad - left/right
 	      ImprovedResiduals =
-		(left.unweightedGradient(right) +
-		 left.unweightedGradient(missing) +
-		 right.unweightedGradient(missing)) /
+		(left.varianceReduction(right) +
+		 left.varianceReduction(missing) +
+		 right.varianceReduction(missing)) /
 		left.weightSum(right, missing);
 	    }
 	};
