@@ -95,7 +95,7 @@ Using a previously fitted GBM model, the system can predict the response of furt
 The prediction for the new covariates is then initialized, either to the previous tree prediction or the initial estimate value from the model training if it is the first tree prediction to be calculating.  The number of trees to be fitted is then looped over, within each iteration the observations are in the covariate dataset are also looped over.  Each observation is initially in the root node, a counter which tracks the current node the observation is in is thus set to 0. This observation is then moved through the tree, updating its current node, until it reaches the appropriate terminal node.  Once the algorithm reaches a terminal node, the prediction for that observation and tree is set to the final split value of the terminal node's parent in the tree.  This process is repeated over all observations and for all trees, once completed the prediction vector is wrapped up and passed back to the R front-end, see Figure 4. 
 
 ![Activity diagram showing how the algorithm performs predictions on new covariate data.](inst/PredictionActivityDiagram.png)
-**Figure 4** Activity diagram showing how the algorithm performs predictions on new covariate data.
+**Figure 4.** Activity diagram showing how the algorithm performs predictions on new covariate data.
 
 ### 2.2.3 Calculating the marginal effects of a variable
 The final piece of functionality offered by the system is to calculate the marginal effects of a variable by "integrating" out the others.  As well as a fitted gbm model and covariate data the user also specifies which variables they're interested in at the R layer. This method utilises a `NodeStack` class which is defined at the beginning of `gbmentry.cpp`, this is a simple class that defines a stack of pairs.  These pairs contain the node index, that is what node in the tree we are looking at, and its weight.  
@@ -114,7 +114,7 @@ With this in mind the method works as follows:
 
 
 ![Activity diagram for calculating the marginal effects of specific variables.](inst/PlotGBMActivityDiagram.png)
-**Figure 5** Activity diagram for calculating the marginal effects of specific variables.
+**Figure 5.** Activity diagram for calculating the marginal effects of specific variables.
 
 ## 2.3 - Structure of the system
 The near entirety of the system is devoted to the task of training a gbm model and so this Section will focus on describing the classes and design patterns implemented to meet this end.  Starting at a high level the primary objects are the "gbm engine" found in `gbm_engine.cpp` and the fit defined in `gbm_fit.h`.  The component has the data and distribution container, see `gbm_datacontainer.cpp`, and a reference to the tree parameters (`treeparams.h`) as private members; this is shown in Figure 3.  The "gbm engine" generates the initial function estimate and through the `FitLearner` method which run the methods of the `gbm_datacontainer.cpp` and `tree.cpp` to perform tasks such as growing trees and calculating errors/bagging data.  The system is built on the RAII idiom and these container classes are initialized on contruction of this gbm engine object and released on its destruction.  This idiom is applied across the system to simplify the task of memory management and further elicit appropriate object design.  Beyond this, encapsulation and const. correctness are implemented where possible within the system.
